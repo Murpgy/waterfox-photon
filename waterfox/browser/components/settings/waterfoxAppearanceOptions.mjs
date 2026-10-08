@@ -158,7 +158,8 @@ function sheetEnabled(deps) {
 }
 
 function photonSelected(deps) {
-  return deps[BROWSER_STYLE_SETTING].value == "photon";
+  const style = deps[BROWSER_STYLE_SETTING].value;
+  return style == "photon" || style == "photon-classic";
 }
 
 function addOption(config) {

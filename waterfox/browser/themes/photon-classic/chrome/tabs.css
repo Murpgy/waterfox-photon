@@ -50,7 +50,7 @@
 /* Static separators between inactive tabs. Mirrors the 88
  * .tabbrowser-tab::before/::after model. */
 @media -moz-pref("userChrome.photon-classic.tabs.separators", true) {
-.tabbrowser-tab:not([visuallyselected="true"], [selected="true"], [multiselected], [first-visible-tab])::before {
+.tabbrowser-tab:not([visuallyselected="true"], [selected="true"], [multiselected])::before {
   content: "";
   display: block;
   border-inline-start: 1px solid var(--lwt-background-tab-separator-color, currentColor) !important;
@@ -59,12 +59,10 @@
   opacity: 0.3 !important;
 }
 
-.tabbrowser-tab[last-visible-tab]:not([visuallyselected="true"], [selected="true"], [multiselected])::after {
-  content: "";
-  display: block;
-  border-inline-start: 1px solid var(--lwt-background-tab-separator-color, currentColor) !important;
-  margin-block: 5px 4px !important;
-  opacity: 0.3 !important;
+/* Leading edge separator before the first tab, mirroring the 88
+ * pre-tabs spacer border. */
+.tabbrowser-tab:first-child:not([visuallyselected="true"], [selected="true"], [multiselected])::before {
+  margin-inline-start: 0 !important;
 }
 
 /* Hide the separator next to the selected tab so the active tab reads connected. */
