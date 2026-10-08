@@ -1,0 +1,29 @@
+/* Photon-classic token overrides.
+ * Keeps browser.nova.enabled == true and re-anchors tab metrics to the
+ * Firefox 88 Photon values instead of forking upstream token layers. */
+
+@media -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic") {
+  :root {
+    --tab-min-height: 33px;
+    --tab-inline-padding: 9px;
+    --tab-block-margin: 0px;
+    --tab-border-radius: 0px;
+    --tab-box-shadow: none;
+    --tab-selected-shadow: none;
+    --tab-loading-fill: #0a84ff;
+    --tab-line-color: currentColor;
+  }
+
+  :root[uidensity="compact"] {
+    --tab-min-height: 29px;
+  }
+
+  :root[uidensity="touch"] {
+    --tab-min-height: 41px;
+  }
+
+  #tabbrowser-tabs {
+    --tab-min-width: 76px;
+    --tab-loading-fill: #0a84ff;
+  }
+}

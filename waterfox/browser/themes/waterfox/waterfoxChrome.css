@@ -5,3 +5,5 @@
 @import url("chrome://browser/skin/waterfox/chrome/tree-tabs.css");
 @import url("chrome://browser/skin/waterfox/chrome/browser-window.css");
 @import url("chrome://browser/skin/waterfox/chrome/content-area.css");
+@import url("chrome://browser/skin/photon-classic/tokens.css");
+@import url("chrome://browser/skin/photon-classic/chrome/tabs.css");

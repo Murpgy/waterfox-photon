@@ -13,3 +13,5 @@ browser.jar:
     skin/classic/browser/waterfox/content.css                 (waterfox/waterfoxContent.css)
     skin/classic/browser/waterfox/chrome/                     (waterfox/chrome/*.css)
     skin/classic/browser/waterfox/content/                    (waterfox/content/*.css)
+    skin/classic/browser/photon-classic/tokens.css            (photon-classic/tokens.css)
+    skin/classic/browser/photon-classic/chrome/               (photon-classic/chrome/*.css)

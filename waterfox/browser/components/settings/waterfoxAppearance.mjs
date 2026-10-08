@@ -326,6 +326,11 @@ const BROWSER_STYLE_OPTIONS = [
     l10nId: "waterfox-appearance-browser-style-option-photon",
     imageSrc: `${BROWSER_STYLE_PREVIEW}photon.svg`,
   },
+  {
+    value: "photon-classic",
+    l10nId: "waterfox-appearance-browser-style-option-photon-classic",
+    imageSrc: `${BROWSER_STYLE_PREVIEW}photon-classic.svg`,
+  },
 ];
 
 const THEME_COLORS = [

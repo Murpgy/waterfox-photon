@@ -21,6 +21,8 @@ support-files = [
 
 ["browser_waterfox_preferences_capture.js"]
 
+["browser_waterfox_photon_classic.js"]
+
 ["browser_waterfox_sheet_inert.js"]
 
 ["browser_waterfox_style_migration.js"]

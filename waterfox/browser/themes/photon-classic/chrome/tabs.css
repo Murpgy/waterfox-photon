@@ -1,0 +1,86 @@
+@namespace xul url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+/* Photon-classic tabs: square, connected, separated.
+ * Additive delta only. Upstream files are never forked; every rule is
+ * gated on browserStyle == photon-classic so other styles stay inert.
+ * Reference: Firefox 88 browser/themes/shared/tabs.inc.css (Photon default path). */
+
+@media -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic") {
+@media -moz-pref("userChrome.photon-classic.tabs.enabled", true) {
+
+/* Keep vertical / tree layouts on the stock renderer. */
+@media not -moz-pref("sidebar.verticalTabs") {
+
+.tabbrowser-tab {
+  padding-inline: 0 !important;
+}
+
+.tabbrowser-tab > .tab-stack {
+  margin-block: 0 !important;
+}
+
+.tab-background {
+  border-radius: 0 !important;
+  margin-block: 0 !important;
+  margin-inline: 0 !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  background-clip: padding-box !important;
+}
+
+.tabbrowser-tab:is([visuallyselected="true"], [selected="true"], [multiselected]) > .tab-stack > .tab-background {
+  background-color: var(--tab-background-color-selected, var(--toolbar-bgcolor, var(--toolbar-background-color))) !important;
+  box-shadow: none !important;
+}
+
+.tabbrowser-tab:not([visuallyselected="true"], [selected="true"], [multiselected]) > .tab-stack > .tab-background {
+  background-color: transparent !important;
+}
+
+.tabbrowser-tab:hover:not([visuallyselected="true"], [selected="true"]) > .tab-stack > .tab-background {
+  background-color: var(--tab-background-color-hover) !important;
+}
+
+/* Selected-tab top accent. Upstream .tab-line was removed; emulate the
+ * Photon 2px line with an inset shadow so no XUL fork is needed. */
+.tabbrowser-tab:is([visuallyselected="true"], [selected="true"]) > .tab-stack > .tab-background {
+  box-shadow: inset 0 2px 0 var(--tab-line-color, currentColor) !important;
+}
+
+/* Static separators between inactive tabs. Mirrors the 88
+ * .tabbrowser-tab::before/::after model. */
+@media -moz-pref("userChrome.photon-classic.tabs.separators", true) {
+.tabbrowser-tab:not([visuallyselected="true"], [selected="true"], [multiselected], [first-visible-tab])::before {
+  content: "";
+  display: block;
+  border-inline-start: 1px solid var(--lwt-background-tab-separator-color, currentColor) !important;
+  margin-block: 5px 4px !important;
+  margin-inline-start: -1px !important;
+  opacity: 0.3 !important;
+}
+
+.tabbrowser-tab[last-visible-tab]:not([visuallyselected="true"], [selected="true"], [multiselected])::after {
+  content: "";
+  display: block;
+  border-inline-start: 1px solid var(--lwt-background-tab-separator-color, currentColor) !important;
+  margin-block: 5px 4px !important;
+  opacity: 0.3 !important;
+}
+
+/* Hide the separator next to the selected tab so the active tab reads connected. */
+.tabbrowser-tab:is([visuallyselected="true"], [selected="true"], [multiselected])::before,
+.tabbrowser-tab:is([visuallyselected="true"], [selected="true"], [multiselected]) + .tabbrowser-tab::before {
+  opacity: 0 !important;
+}
+}
+
+/* Container line stays Photon-like: thin bar above the background. */
+@media -moz-pref("userChrome.photon-classic.tabs.top-line", true) {
+.tab-context-line {
+  border-radius: 0 !important;
+}
+}
+
+} /* end horizontal-tabs guard */
+} /* end tabs.enabled */
+} /* end photon-classic */

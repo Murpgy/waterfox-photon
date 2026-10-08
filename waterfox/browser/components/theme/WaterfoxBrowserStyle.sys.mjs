@@ -54,15 +54,29 @@ const LEGACY_PHOTON_PRESET = Object.freeze({
 });
 const PHOTON_PRESET = LEGACY_PHOTON_PRESET;
 
+const PHOTON_CLASSIC_PRESET = Object.freeze({
+  ...STOCK_PRESET,
+  "userChrome.tab.connect_to_window": true,
+  "userChrome.tab.color_like_toolbar": true,
+  "userChrome.tab.photon_like_padding": true,
+  "userChrome.tab.static_separator": true,
+  "userChrome.tab.newtab_button_smaller": true,
+  "userChrome.icon.panel_photon": true,
+  "userChrome.tab.photon_like_contextline": true,
+  "userChrome.rounding.square_tab": true,
+});
+
 const PRESETS = Object.freeze({
   nova: NOVA_PRESET,
   proton: PROTON_PRESET,
   photon: PHOTON_PRESET,
+  "photon-classic": PHOTON_CLASSIC_PRESET,
 });
 
 export const WaterfoxBrowserStyle = Object.freeze({
   PRESETS,
   PHOTON_PRESET,
+  PHOTON_CLASSIC_PRESET,
   STYLE_PREFS,
 
   getStyle() {
@@ -78,7 +92,10 @@ export const WaterfoxBrowserStyle = Object.freeze({
       return;
     }
     Services.prefs.setStringPref(BROWSER_STYLE_PREF, style);
-    Services.prefs.setBoolPref(NOVA_PREF, style == "nova");
+    Services.prefs.setBoolPref(
+      NOVA_PREF,
+      style == "nova" || style == "photon-classic"
+    );
   },
 
   applyStyle(style) {
@@ -108,7 +125,12 @@ export const WaterfoxBrowserStyle = Object.freeze({
       return;
     }
 
-    const preset = style == "photon" ? LEGACY_PHOTON_PRESET : STOCK_PRESET;
+    const preset =
+      style == "photon"
+        ? LEGACY_PHOTON_PRESET
+        : style == "photon-classic"
+          ? PHOTON_CLASSIC_PRESET
+          : STOCK_PRESET;
     for (const [pref, value] of Object.entries(preset)) {
       if (Services.prefs.getBoolPref(pref) == value) {
         Services.prefs.clearUserPref(pref);

@@ -8,4 +8,5 @@ JAR_MANIFESTS += ["jar.mn"]
 
 JS_PREFERENCE_PP_FILES += [
     "lepton/prefs-lepton.js",
+    "photon-classic/prefs-photon-classic.js",
 ]
