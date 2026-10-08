@@ -71,7 +71,7 @@ jobs:
 
       - name: Bootstrap build dependencies
         shell: bash
-        run: python3 mach bootstrap --application-choice=browser --no-interactive
+        run: python3 mach bootstrap --application-choice=browser
 
       - name: Fetch pinned clang
         shell: bash
@@ -93,3 +93,54 @@ jobs:
           ./mach test --headless \
             waterfox/browser/components/theme/test/browser/browser_waterfox_style_migration.js \
             waterfox/browser/components/onboarding/test/browser/browser_waterfox_onboarding_actions.js
+
+  optimized-build:
+    name: Optimized build (ThinLTO, Linux x64)
+    # Manual dispatch only: multi-hour link on hosted runners. No signing,
+    # no release channel, no tests in the binary; the artifact is an
+    # unsigned dogfood build for validating the theme at full optimization.
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Optimized mozconfig (dev base, cross-LTO, -O3, no tests)
+        shell: bash
+        run: |
+          cat > .mozconfig <<'EOF'
+          wfx_dev=1
+          . "$topsrcdir/waterfox/build/mozconfig.common"
+          ac_add_options --disable-tests
+          ac_add_options --enable-lto=cross
+          ac_add_options --enable-optimize="-march=x86-64-v2 -mtune=haswell -O3 -w"
+          EOF
+
+      - name: Bootstrap build dependencies
+        shell: bash
+        run: python3 mach bootstrap --application-choice=browser
+
+      - name: Fetch pinned clang
+        shell: bash
+        run: scripts/fetch-clang-22.sh
+
+      - name: Optimized build
+        shell: bash
+        run: xvfb-run -a --server-args="-screen 0 1280x1024x24" ./mach build
+
+      - name: Package
+        shell: bash
+        run: ./mach package
+
+      - name: Bundle unsigned build
+        shell: bash
+        run: tar -C "obj-$(uname -s)-$(uname -m)/dist" -cf waterfox-opt-build.tar waterfox
+
+      - name: Upload unsigned build
+        uses: actions/upload-artifact@v4
+        with:
+          name: waterfox-opt-build
+          path: waterfox-opt-build.tar
