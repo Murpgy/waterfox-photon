@@ -7,3 +7,6 @@
 @import url("chrome://browser/skin/waterfox/chrome/content-area.css");
 @import url("chrome://browser/skin/photon-classic/tokens.css");
 @import url("chrome://browser/skin/photon-classic/chrome/tabs.css");
+@import url("chrome://browser/skin/photon-classic/chrome/toolbar.css");
+@import url("chrome://browser/skin/photon-classic/chrome/urlbar.css");
+@import url("chrome://browser/skin/photon-classic/chrome/panelUI.css");

@@ -7,3 +7,9 @@
 pref("userChrome.photon-classic.tabs.enabled", true);
 pref("userChrome.photon-classic.tabs.separators", true);
 pref("userChrome.photon-classic.tabs.top-line", true);
+pref("userChrome.photon-classic.toolbar.enabled", true);
+pref("userChrome.photon-classic.toolbar.square-buttons", true);
+pref("userChrome.photon-classic.urlbar.enabled", true);
+pref("userChrome.photon-classic.urlbar.no-breakout", true);
+pref("userChrome.photon-classic.panel.enabled", true);
+pref("userChrome.photon-classic.panel.icons", true);

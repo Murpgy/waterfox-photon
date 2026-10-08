@@ -1,0 +1,50 @@
+@namespace xul url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+/* Photon-classic toolbar: dense Photon padding, square buttons.
+ * Reference: Firefox 88 browser/themes/shared/toolbarbuttons.inc.css
+ * (Photon default path: outer 2px / inner 8px, hover 10% / active 15%). */
+
+@media -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic") {
+@media -moz-pref("userChrome.photon-classic.toolbar.enabled", true) {
+
+:root {
+  --toolbarbutton-padding-outer: 2px;
+  --toolbarbutton-padding-inner: 8px;
+  --toolbarbutton-border-radius: 2px;
+  --bookmark-block-padding: 4px;
+}
+
+:root[uidensity="compact"] {
+  --toolbarbutton-padding-outer: 1px;
+  --toolbarbutton-padding-inner: 6px;
+  --bookmark-block-padding: 1px;
+}
+
+:root[uidensity="touch"] {
+  --toolbarbutton-padding-inner: 9px;
+  --bookmark-block-padding: 7px;
+}
+
+.toolbarbutton-1 > .toolbarbutton-icon,
+.toolbarbutton-1 > .toolbarbutton-badge-stack {
+  border-radius: var(--toolbarbutton-border-radius) !important;
+}
+
+.toolbarbutton-1:not([disabled="true"]):hover > .toolbarbutton-icon,
+.toolbarbutton-1:not([disabled="true"]):hover > .toolbarbutton-badge-stack {
+  background-color: color-mix(in srgb, currentColor 10%, transparent) !important;
+}
+
+.toolbarbutton-1:not([disabled="true"]):is(:active, [open="true"]) > .toolbarbutton-icon,
+.toolbarbutton-1:not([disabled="true"]):is(:active, [open="true"]) > .toolbarbutton-badge-stack {
+  background-color: color-mix(in srgb, currentColor 15%, transparent) !important;
+}
+
+@media -moz-pref("userChrome.photon-classic.toolbar.square-buttons", true) {
+#back-button > .toolbarbutton-icon {
+  border-radius: var(--toolbarbutton-border-radius) !important;
+}
+}
+
+} /* end toolbar.enabled */
+} /* end photon-classic */

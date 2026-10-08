@@ -66,3 +66,20 @@ add_task(function test_photon_classic_keeps_nova() {
   reset();
   WaterfoxBrowserStyle.applyStyle("nova");
 });
+
+add_task(function test_photon_classic_overlay_gates() {
+  const defaults = Services.prefs.getDefaultBranch("");
+  for (const pref of [
+    "userChrome.photon-classic.tabs.enabled",
+    "userChrome.photon-classic.toolbar.enabled",
+    "userChrome.photon-classic.urlbar.enabled",
+    "userChrome.photon-classic.urlbar.no-breakout",
+    "userChrome.photon-classic.panel.enabled",
+    "userChrome.photon-classic.panel.icons",
+  ]) {
+    ok(
+      defaults.getBoolPref(pref, false),
+      `${pref} defaults to true so each area is independently kill-switchable`
+    );
+  }
+});

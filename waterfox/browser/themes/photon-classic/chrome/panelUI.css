@@ -1,0 +1,44 @@
+@namespace xul url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+/* Photon-classic menus: dense items with icons.
+ * Reference: Firefox 88 browser/themes/shared/customizableui/panelUI.inc.css
+ * (Photon path: icon-bearing subviewbuttons, tight 2px rows,
+ * combined zoom/edit affordances). Modern Proton/Nova stripped most
+ * appmenu icons and loosened spacing; restore the Photon density here. */
+
+@media -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic") {
+@media -moz-pref("userChrome.photon-classic.panel.enabled", true) {
+
+:root {
+  --panel-subview-body-padding-block: 4px;
+  --panel-separator-padding-vertical: 4px;
+  --panel-separator-padding-horizontal: 4px;
+  --arrowpanel-menuitem-padding: 2px;
+}
+
+panelmultiview .subviewbutton,
+#appMenu-popup .subviewbutton {
+  border-radius: 2px !important;
+  padding-block: 2px !important;
+}
+
+panelmultiview .subviewbutton > .toolbarbutton-icon,
+#appMenu-popup .subviewbutton > .toolbarbutton-icon {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+@media -moz-pref("userChrome.photon-classic.panel.icons", true) {
+#appMenu-popup .subviewbutton:not(.subviewbutton-iconic) > .toolbarbutton-icon {
+  display: inline-flex !important;
+  visibility: visible !important;
+}
+
+#appMenu-zoom-controls > .toolbarbutton-icon,
+#appMenu-edit-controls > .toolbarbutton-icon {
+  display: inline-flex !important;
+}
+}
+
+} /* end panel.enabled */
+} /* end photon-classic */
