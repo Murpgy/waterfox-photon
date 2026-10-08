@@ -104,11 +104,7 @@ add_task(function test_all_styles_sync_nova() {
   ]) {
     reset();
     WaterfoxBrowserStyle.setStyle(style);
-    is(
-      WaterfoxBrowserStyle.getStyle(),
-      style,
-      `${style} is selected`
-    );
+    is(WaterfoxBrowserStyle.getStyle(), style, `${style} is selected`);
     is(
       Services.prefs.getBoolPref(NOVA_PREF),
       nova,
@@ -121,14 +117,8 @@ add_task(function test_all_styles_sync_nova() {
 
 add_task(async function test_photon_classic_sheets_packaged() {
   const sheets = [
-    [
-      "chrome://browser/skin/photon-classic/tokens.css",
-      "--tab-min-height",
-    ],
-    [
-      "chrome://browser/skin/photon-classic/chrome/tabs.css",
-      ".tab-background",
-    ],
+    ["chrome://browser/skin/photon-classic/tokens.css", "--tab-min-height"],
+    ["chrome://browser/skin/photon-classic/chrome/tabs.css", ".tab-background"],
     [
       "chrome://browser/skin/photon-classic/chrome/toolbar.css",
       "--toolbarbutton-padding-inner",
@@ -146,10 +136,7 @@ add_task(async function test_photon_classic_sheets_packaged() {
     const response = await fetch(url);
     ok(response.ok, `${url} is packaged`);
     const text = await response.text();
-    ok(
-      text.includes(marker),
-      `${url} contains ${marker}`
-    );
+    ok(text.includes(marker), `${url} contains ${marker}`);
   }
   const svg = await fetch(
     "chrome://browser/content/waterfox/style/waterfox-style-photon-classic.svg"
@@ -165,11 +152,7 @@ add_task(function test_photon_classic_live_tokens() {
     "0px",
     "photon-classic zeroes the tab block margin"
   );
-  is(
-    rootVar("--tab-border-radius"),
-    "0px",
-    "photon-classic uses square tabs"
-  );
+  is(rootVar("--tab-border-radius"), "0px", "photon-classic uses square tabs");
 
   WaterfoxBrowserStyle.setStyle("nova");
   isnot(

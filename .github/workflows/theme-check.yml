@@ -11,6 +11,7 @@ on:
       - "waterfox/browser/components/theme/**"
       - "waterfox/browser/components/settings/waterfoxAppearance*"
       - "waterfox/browser/components/onboarding/**"
+      - "python/sites/lint.txt"
       - "scripts/ci/theme-coherence.py"
       - ".github/workflows/theme-check.yml"
   pull_request:
@@ -19,7 +20,7 @@ on:
       - "waterfox/browser/components/theme/**"
       - "waterfox/browser/components/settings/waterfoxAppearance*"
       - "waterfox/browser/components/onboarding/**"
-      - "scripts/ci/theme-coherence.py"
+      - "python/sites/lint.txt"
       - ".github/workflows/theme-check.yml"
   workflow_dispatch:
 
@@ -50,7 +51,7 @@ jobs:
 
       - name: Stylelint photon-classic CSS
         shell: bash
-        run: ./mach stylelint waterfox/browser/themes/photon-classic/
+        run: ./mach lint --linter stylelint waterfox/browser/themes/photon-classic/
 
       - name: Manifest and wiring sanity
         shell: bash

@@ -125,12 +125,12 @@ export const WaterfoxBrowserStyle = Object.freeze({
       return;
     }
 
-    const preset =
-      style == "photon"
-        ? LEGACY_PHOTON_PRESET
-        : style == "photon-classic"
-          ? PHOTON_CLASSIC_PRESET
-          : STOCK_PRESET;
+    let preset = STOCK_PRESET;
+    if (style == "photon") {
+      preset = LEGACY_PHOTON_PRESET;
+    } else if (style == "photon-classic") {
+      preset = PHOTON_CLASSIC_PRESET;
+    }
     for (const [pref, value] of Object.entries(preset)) {
       if (Services.prefs.getBoolPref(pref) == value) {
         Services.prefs.clearUserPref(pref);
