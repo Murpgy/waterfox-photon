@@ -9,17 +9,35 @@ const { WaterfoxBrowserStyle } = ChromeUtils.importESModule(
 
 const NOVA_PREF = "browser.nova.enabled";
 const STYLE_PREF = "browser.theme.waterfox.browserStyle";
+const DENSITY_PREF = "browser.uidensity";
+
+const OVERLAY_GATES = [
+  "userChrome.photon-classic.tabs.enabled",
+  "userChrome.photon-classic.toolbar.enabled",
+  "userChrome.photon-classic.urlbar.enabled",
+  "userChrome.photon-classic.urlbar.no-breakout",
+  "userChrome.photon-classic.panel.enabled",
+  "userChrome.photon-classic.panel.icons",
+];
 
 function reset() {
   for (const pref of [
     NOVA_PREF,
     STYLE_PREF,
+    DENSITY_PREF,
     ...WaterfoxBrowserStyle.STYLE_PREFS,
+    ...OVERLAY_GATES,
   ]) {
     if (Services.prefs.prefHasUserValue(pref)) {
       Services.prefs.clearUserPref(pref);
     }
   }
+}
+
+function rootVar(name) {
+  return getComputedStyle(document.documentElement)
+    .getPropertyValue(name)
+    .trim();
 }
 
 registerCleanupFunction(reset);
@@ -69,17 +87,117 @@ add_task(function test_photon_classic_keeps_nova() {
 
 add_task(function test_photon_classic_overlay_gates() {
   const defaults = Services.prefs.getDefaultBranch("");
-  for (const pref of [
-    "userChrome.photon-classic.tabs.enabled",
-    "userChrome.photon-classic.toolbar.enabled",
-    "userChrome.photon-classic.urlbar.enabled",
-    "userChrome.photon-classic.urlbar.no-breakout",
-    "userChrome.photon-classic.panel.enabled",
-    "userChrome.photon-classic.panel.icons",
-  ]) {
+  for (const pref of OVERLAY_GATES) {
     ok(
       defaults.getBoolPref(pref, false),
       `${pref} defaults to true so each area is independently kill-switchable`
     );
   }
+});
+
+add_task(function test_all_styles_sync_nova() {
+  for (const [style, nova] of [
+    ["nova", true],
+    ["proton", false],
+    ["photon", false],
+    ["photon-classic", true],
+  ]) {
+    reset();
+    WaterfoxBrowserStyle.setStyle(style);
+    is(
+      WaterfoxBrowserStyle.getStyle(),
+      style,
+      `${style} is selected`
+    );
+    is(
+      Services.prefs.getBoolPref(NOVA_PREF),
+      nova,
+      `${style} keeps Nova ${nova ? "enabled" : "disabled"}`
+    );
+  }
+  reset();
+  WaterfoxBrowserStyle.applyStyle("nova");
+});
+
+add_task(async function test_photon_classic_sheets_packaged() {
+  const sheets = [
+    [
+      "chrome://browser/skin/photon-classic/tokens.css",
+      "--tab-min-height",
+    ],
+    [
+      "chrome://browser/skin/photon-classic/chrome/tabs.css",
+      ".tab-background",
+    ],
+    [
+      "chrome://browser/skin/photon-classic/chrome/toolbar.css",
+      "--toolbarbutton-padding-inner",
+    ],
+    [
+      "chrome://browser/skin/photon-classic/chrome/urlbar.css",
+      "#urlbar-background",
+    ],
+    [
+      "chrome://browser/skin/photon-classic/chrome/panelUI.css",
+      ".subviewbutton",
+    ],
+  ];
+  for (const [url, marker] of sheets) {
+    const response = await fetch(url);
+    ok(response.ok, `${url} is packaged`);
+    const text = await response.text();
+    ok(
+      text.includes(marker),
+      `${url} contains ${marker}`
+    );
+  }
+  const svg = await fetch(
+    "chrome://browser/content/waterfox/style/waterfox-style-photon-classic.svg"
+  );
+  ok(svg.ok, "photon-classic picker preview is packaged");
+});
+
+add_task(function test_photon_classic_live_tokens() {
+  reset();
+  WaterfoxBrowserStyle.setStyle("photon-classic");
+  is(
+    rootVar("--tab-block-margin"),
+    "0px",
+    "photon-classic zeroes the tab block margin"
+  );
+  is(
+    rootVar("--tab-border-radius"),
+    "0px",
+    "photon-classic uses square tabs"
+  );
+
+  WaterfoxBrowserStyle.setStyle("nova");
+  isnot(
+    rootVar("--tab-block-margin"),
+    "0px",
+    "nova restores the floating tab margin once classic is off"
+  );
+  isnot(
+    rootVar("--tab-border-radius"),
+    "0px",
+    "nova restores rounded tabs once classic is off"
+  );
+  reset();
+  WaterfoxBrowserStyle.applyStyle("nova");
+});
+
+add_task(function test_photon_classic_kill_switches() {
+  reset();
+  WaterfoxBrowserStyle.setStyle("photon-classic");
+  for (const pref of OVERLAY_GATES) {
+    Services.prefs.setBoolPref(pref, false);
+    is(
+      WaterfoxBrowserStyle.getStyle(),
+      "photon-classic",
+      `${pref}=false keeps the style selected`
+    );
+    Services.prefs.clearUserPref(pref);
+  }
+  reset();
+  WaterfoxBrowserStyle.applyStyle("nova");
 });
