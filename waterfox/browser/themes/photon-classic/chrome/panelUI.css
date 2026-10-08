@@ -28,14 +28,24 @@
     }
 
     @media -moz-pref("userChrome.photon-classic.panel.icons", true) {
-      #appMenu-popup .subviewbutton:not(.subviewbutton-iconic) > .toolbarbutton-icon {
-        display: inline-flex !important;
-        visibility: visible !important;
+      /* Icon boxes are anonymous (conjured by list-style-image); Lepton's
+       * icons.css provides most mappings under panel_photon. These four
+       * rows are blanked there, but 88 Photon gave them icons. */
+      #appMenu-save-file-button2 {
+        list-style-image: url("chrome://browser/skin/lepton/toolbarButton-download.svg") !important;
+      }
+      #appMenu-find-button2 {
+        list-style-image: url("chrome://global/skin/icons/search-glass.svg") !important;
+      }
+      #appMenu-more-button2 {
+        list-style-image: url("chrome://browser/skin/lepton/ion.svg") !important;
+      }
+      #appMenu-translate-button {
+        list-style-image: url("chrome://browser/skin/lepton/translations.svg") !important;
       }
 
-      #appMenu-zoom-controls > .toolbarbutton-icon,
-      #appMenu-edit-controls > .toolbarbutton-icon {
-        display: inline-flex !important;
+      #appMenu-popup .subviewbutton:not(.subviewbutton-iconic) > .toolbarbutton-icon {
+        visibility: visible !important;
       }
     }
   } /* end panel.enabled */

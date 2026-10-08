@@ -66,10 +66,18 @@
           margin-inline-start: 0 !important;
         }
 
-        /* Hide the separator next to the selected tab so the active tab reads connected. */
+        /* Hide the separator next to the selected tab so the active tab reads connected.
+         * (88 restyled it full-height; hiding is a deliberate simplification.) */
         .tabbrowser-tab:is([visuallyselected="true"], [selected="true"], [multiselected])::before,
         .tabbrowser-tab:is([visuallyselected="true"], [selected="true"], [multiselected]) + .tabbrowser-tab::before {
           opacity: 0 !important;
+        }
+
+        /* Full-height dividers bracketing the hovered tab, mirroring 88's
+         * :hover::after / [beforehovered]::after model. */
+        .tabbrowser-tab:hover:not([visuallyselected="true"], [selected="true"], [multiselected])::before,
+        .tabbrowser-tab:hover:not([visuallyselected="true"], [selected="true"], [multiselected]) + .tabbrowser-tab::before {
+          margin-block: 0 !important;
         }
       }
 
