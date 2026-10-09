@@ -1,0 +1,77 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Build Linux
+
+# Standalone optimized Linux x64 dogfood build. No signing, no release
+# channel, no tests in the binary; the artifact is unsigned and exists to
+# validate the theme at full optimization. Dispatches alone via
+# workflow_dispatch; full -j parallelism since Linux ThinLTO links green
+# on ubuntu-latest (proven).
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  MOZ_NOSPAM: "1"
+  RUST_TOOLCHAIN: "1.98.1"
+
+jobs:
+  build:
+    name: Optimized build (Linux x64, ThinLTO)
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Optimized mozconfig (dev base, thin LTO, -O3, no tests)
+        shell: bash
+        run: |
+          cat > .mozconfig <<'EOF'
+          wfx_dev=1
+          . "$topsrcdir/waterfox/build/mozconfig.common"
+          ac_add_options --disable-tests
+          ac_add_options --enable-lto
+          ac_add_options --enable-optimize="-march=x86-64-v2 -mtune=haswell -O3 -w"
+          EOF
+
+      - name: Install build packages
+        shell: bash
+        run: |
+          sudo apt update
+          sudo apt install -y xvfb zstd
+
+      - name: Bootstrap build dependencies
+        shell: bash
+        run: python3 mach bootstrap --application-choice=browser
+
+      - name: Fetch pinned clang
+        shell: bash
+        run: scripts/fetch-clang-22.sh
+
+      - name: Pin Rust toolchain (upstream release toolchain)
+        shell: bash
+        run: rustup default "${RUST_TOOLCHAIN}"
+
+      - name: Optimized build (full parallelism)
+        shell: bash
+        run: xvfb-run -a --server-args="-screen 0 1280x1024x24" ./mach build
+
+      - name: Package
+        shell: bash
+        run: ./mach package
+
+      - name: Bundle unsigned build
+        shell: bash
+        run: |
+          objdir="$(ls -d obj-* | head -n 1)"
+          tar -C "$objdir/dist" -cf waterfox-opt-build.tar waterfox
+
+      - name: Upload unsigned build
+        uses: actions/upload-artifact@v4
+        with:
+          name: waterfox-opt-build-linux-x64
+          path: waterfox-opt-build.tar

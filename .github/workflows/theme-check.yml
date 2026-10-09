@@ -4,6 +4,8 @@ name: Theme check
 # Lightweight CI for the photon-classic overlay. No signing, no release
 # pipeline: lint plus manifest coherence run on every push/PR, the headed
 # mochitests run only on manual dispatch (they need a full dev build).
+# Optimized per-platform builds live in their own workflows
+# (build-linux.yml, build-windows.yml) so each dispatches alone.
 on:
   push:
     paths:
@@ -44,7 +46,9 @@ jobs:
         run: |
           ./mach eslint \
             waterfox/browser/components/theme/WaterfoxBrowserStyle.sys.mjs \
+            waterfox/browser/components/theme/WaterfoxTheme.sys.mjs \
             waterfox/browser/components/theme/test/browser/browser_waterfox_photon_classic.js \
+            waterfox/browser/components/theme/test/browser/browser_waterfox_style_migration.js \
             waterfox/browser/components/settings/waterfoxAppearance.mjs \
             waterfox/browser/components/settings/waterfoxAppearanceOptions.mjs \
             waterfox/browser/components/onboarding/WaterfoxOnboardingActions.sys.mjs
@@ -93,108 +97,3 @@ jobs:
           ./mach test --headless \
             waterfox/browser/components/theme/test/browser/browser_waterfox_style_migration.js \
             waterfox/browser/components/onboarding/test/browser/browser_waterfox_onboarding_actions.js
-
-  optimized-build:
-    name: Optimized build (${{ matrix.name }})
-    # Manual dispatch only: multi-hour builds on hosted runners. No signing,
-    # no release channel, no tests in the binary; the artifacts are unsigned
-    # dogfood builds for validating the theme at full optimization.
-    # Platforms build in parallel (no needs: between them), so wall-clock is
-    # the slower platform, not the sum. LTO is per-platform on purpose:
-    # Linux uses plain --enable-lto (thin, C++ only, upstream's validated
-    # setting). Windows omits LTO entirely: clang-22 emits bitcode
-    # attributes that the bundled rustc-1.98 LLVM 21 reader rejects
-    # ("Unknown attribute kind (105)") once -flto=thin/-Cembed-bitcode
-    # enter the mixed C/Rust link. Upstream only survives cross-LTO via its
-    # exact trio (wfx_lto_mode=cross + wfx_rustc_bootstrap=1 + nightly -Z
-    # rustflags); for a theme-validation artifact, correctness beats the
-    # last benchmark percent.
-    if: ${{ github.event_name == 'workflow_dispatch' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 360
-    env:
-      RUST_TOOLCHAIN: "1.98.1"
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: Linux x64
-            artifact: waterfox-opt-build-linux-x64
-            apt_packages: xvfb zstd
-            rust_target: ""
-            build_command: xvfb-run -a --server-args="-screen 0 1280x1024x24" ./mach build
-          - name: Windows x64
-            artifact: waterfox-opt-build-windows-x64
-            apt_packages: msitools zstd
-            rust_target: x86_64-pc-windows-msvc
-            build_command: ./mach build
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - name: Optimized mozconfig
-        shell: bash
-        run: |
-          if [[ "${{ matrix.name }}" == "Windows x64" ]]; then
-            cat > .mozconfig <<'EOF'
-          wfx_target=x86_64-pc-windows-msvc
-          wfx_cross_build=1
-          . "$topsrcdir/waterfox/build/mozconfig.common"
-          ac_add_options --disable-tests
-          ac_add_options --enable-optimize="-clang:-march=x86-64-v2 -clang:-mtune=haswell -clang:-O3 -w"
-          EOF
-          else
-            cat > .mozconfig <<'EOF'
-          wfx_dev=1
-          . "$topsrcdir/waterfox/build/mozconfig.common"
-          ac_add_options --disable-tests
-          ac_add_options --enable-lto
-          ac_add_options --enable-optimize="-march=x86-64-v2 -mtune=haswell -O3 -w"
-          EOF
-          fi
-
-      - name: Install build packages
-        shell: bash
-        run: |
-          sudo apt update
-          sudo apt install -y ${{ matrix.apt_packages }}
-
-      - name: Bootstrap build dependencies
-        shell: bash
-        run: python3 mach bootstrap --application-choice=browser
-
-      - name: Fetch pinned clang
-        shell: bash
-        run: scripts/fetch-clang-22.sh
-
-      - name: Pin Rust toolchain (upstream release toolchain)
-        shell: bash
-        run: rustup default "${RUST_TOOLCHAIN}"
-
-      - name: Add Windows Rust target
-        if: ${{ matrix.rust_target != '' }}
-        shell: bash
-        run: |
-          rustup target add --toolchain "${RUST_TOOLCHAIN}" "${{ matrix.rust_target }}"
-
-      - name: Optimized build
-        shell: bash
-        run: ${{ matrix.build_command }}
-
-      - name: Package
-        shell: bash
-        run: ./mach package
-
-      - name: Bundle unsigned build
-        shell: bash
-        run: |
-          objdir="$(ls -d obj-* | head -n 1)"
-          tar -C "$objdir/dist" -cf waterfox-opt-build.tar waterfox
-
-      - name: Upload unsigned build
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.artifact }}
-          path: waterfox-opt-build.tar

@@ -1,0 +1,99 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Build Windows
+
+# Standalone optimized Windows x64 dogfood build, cross-compiled with
+# clang-cl on ubuntu-latest (same approach as upstream's release stage 1/3,
+# minus PGO). No signing, no release channel, no tests in the binary.
+# Dispatches alone via workflow_dispatch so Windows retries never burn
+# Linux minutes.
+#
+# Memory hardening (learned the hard way): the Windows cross link runs
+# clang-cl + Wine + rustc + lld-link concurrently and the hosted runner was
+# SIGTERM-killed (exit 143) at -j4 with no swap. This job caps make at -j2
+# and provisions 8G of swap; slower per-minute, survives the link.
+# LTO is deliberately off on this leg: clang-22 emits bitcode attributes
+# that the bundled rustc-1.98 LLVM 21 reader rejects ("Unknown attribute
+# kind (105)") once -flto=thin/-Cembed-bitcode enter the mixed C/Rust link.
+# -O3 carries the optimization; the theme code under test is
+# optimization-independent.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  MOZ_NOSPAM: "1"
+  RUST_TOOLCHAIN: "1.98.1"
+
+jobs:
+  build:
+    name: Optimized build (Windows x64, -O3)
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Optimized mozconfig (Windows cross, -O3, no LTO, -j2)
+        shell: bash
+        run: |
+          cat > .mozconfig <<'EOF'
+          wfx_target=x86_64-pc-windows-msvc
+          wfx_cross_build=1
+          . "$topsrcdir/waterfox/build/mozconfig.common"
+          ac_add_options --disable-tests
+          ac_add_options --enable-optimize="-clang:-march=x86-64-v2 -clang:-mtune=haswell -clang:-O3 -w"
+          EOF
+          echo 'mk_add_options MOZ_MAKE_FLAGS="-j2"' >> .mozconfig
+
+      - name: Provision emergency swap
+        shell: bash
+        run: |
+          sudo fallocate -l 8G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          free -h
+
+      - name: Install build packages
+        shell: bash
+        run: |
+          sudo apt update
+          sudo apt install -y msitools zstd
+
+      - name: Bootstrap build dependencies
+        shell: bash
+        run: python3 mach bootstrap --application-choice=browser
+
+      - name: Fetch pinned clang
+        shell: bash
+        run: scripts/fetch-clang-22.sh
+
+      - name: Pin Rust toolchain and add Windows target
+        shell: bash
+        run: |
+          rustup default "${RUST_TOOLCHAIN}"
+          rustup target add --toolchain "${RUST_TOOLCHAIN}" x86_64-pc-windows-msvc
+
+      - name: Optimized build
+        shell: bash
+        run: ./mach build
+
+      - name: Package
+        shell: bash
+        run: ./mach package
+
+      - name: Bundle unsigned build
+        shell: bash
+        run: |
+          objdir="$(ls -d obj-* | head -n 1)"
+          tar -C "$objdir/dist" -cf waterfox-opt-build.tar waterfox
+
+      - name: Upload unsigned build
+        uses: actions/upload-artifact@v4
+        with:
+          name: waterfox-opt-build-windows-x64
+          path: waterfox-opt-build.tar
