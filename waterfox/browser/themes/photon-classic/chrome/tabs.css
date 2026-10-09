@@ -60,9 +60,10 @@
           opacity: 0.3 !important;
         }
 
-        /* Leading edge separator before the first tab, mirroring the 88
- * pre-tabs spacer border. */
-        .tabbrowser-tab:first-child:not([visuallyselected="true"], [selected="true"], [multiselected])::before {
+        /* Leading edge separator before the first strip-level tab,
+         * mirroring the 88 pre-tabs spacer border. Scoped out of tab-group
+         * interiors, where the first grouped tab is also :first-child. */
+        #tabbrowser-arrowscrollbox > .tabbrowser-tab:first-of-type:not(tab-group *):not([visuallyselected="true"], [selected="true"], [multiselected])::before {
           margin-inline-start: 0 !important;
         }
 
@@ -85,6 +86,22 @@
       @media -moz-pref("userChrome.photon-classic.tabs.top-line", true) {
         .tab-context-line {
           border-radius: 0 !important;
+        }
+      }
+
+      /* High-contrast mode: Photon transparency would erase selection and
+       * separators, so restore system-color indicators. */
+      @media (forced-colors) {
+        .tabbrowser-tab:is([visuallyselected="true"], [selected="true"]) > .tab-stack > .tab-background {
+          /* stylelint-disable-next-line stylelint-plugin-mozilla/use-design-tokens -- System HCM color, no token equivalent. */
+          box-shadow: inset 0 2px 0 SelectedItem !important;
+        }
+        .tabbrowser-tab:not([visuallyselected="true"], [selected="true"], [multiselected]) > .tab-stack > .tab-background {
+          background-color: Canvas !important;
+        }
+        .tabbrowser-tab:not([visuallyselected="true"], [selected="true"], [multiselected])::before {
+          border-inline-start-color: ButtonText !important;
+          opacity: 1 !important;
         }
       }
     } /* end horizontal-tabs guard */

@@ -24,7 +24,7 @@
       --uc-folder-icon: url("chrome://browser/skin/lepton/folder.svg");
     }
   }
-  @media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.connect_to_window")) {
+  @media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.connect_to_window")) {
     :root {
       --uc-tab-icon: url("chrome://browser/skin/lepton/tab-photon.svg");
       --uc-tab-copy-icon: url("chrome://browser/skin/lepton/tab-copy-photon.svg");
@@ -46,7 +46,7 @@
   #TabsToolbar #new-tab-button {
     --uc-new-tab-icon: url(chrome://global/skin/icons/plus.svg);
   }
-  @media -moz-pref("browser.theme.waterfox.browserStyle", "photon") {
+  @media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) {
     .urlbarView-row[source="tabs"] > .urlbarView-row-inner > .urlbarView-no-wrap > .urlbarView-favicon,
     #urlbar-engine-one-off-item-tabs {
       list-style-image: var(--uc-tab-icon) !important;

@@ -24,7 +24,7 @@
   .tab-label {
     overflow: hidden;
   }
-  @media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.sound_with_favicons")) {
+  @media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.sound_with_favicons")) {
     @media not -moz-pref("userChrome.hidden.tab_icon") {
       .tabbrowser-tab:not([sharing], [crashed]):is([soundplaying], [muted], [activemedia-blocked])[pinned] .tab-label-container[labeldirection="ltr"],
       .tabbrowser-tab:not([sharing], [crashed]):is([soundplaying], [muted], [activemedia-blocked])[pinned]
@@ -159,7 +159,7 @@
       margin-inline-end: 5px;
     }
   }
-  @media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.close_button_at_hover")) {
+  @media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.close_button_at_hover")) {
     #tabbrowser-tabs[closebuttons="activetab"] .tabbrowser-tab:not(:hover, [pinned]) .tab-label-container:not([textoverflow]) {
       margin-inline-end: 1px;
     }
@@ -175,7 +175,7 @@
       max-width: min-content;
       margin-inline-end: auto;
     }
-    @media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.close_button_at_hover")) {
+    @media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.close_button_at_hover")) {
       .tabbrowser-tab:not(:hover, [pinned]) > .tab-stack > .tab-content > .tab-close-button {
         padding-inline-start: 6px !important; /* Original: 0px */
         width: 24px !important; /* Original: 17px */
@@ -896,7 +896,7 @@
 }
 
 /* Photon uses its context line instead of Firefox's selected-tab outline. */
-@media -moz-pref("browser.theme.waterfox.browserStyle", "photon") {
+@media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) {
   :root {
     --tab-selected-outline-color: transparent !important;
   }
@@ -940,7 +940,7 @@
     }
   }
 }
-@media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.hidden.tab_icon")) {
+@media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.hidden.tab_icon")) {
   @media not -moz-pref("userChrome.hidden.tab_icon.always") {
     .tabbrowser-tab:not([pinned="true"]) .tab-icon-image {
       display: none;

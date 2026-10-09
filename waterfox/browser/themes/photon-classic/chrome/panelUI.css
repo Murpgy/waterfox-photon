@@ -12,7 +12,7 @@
       --panel-subview-body-padding-block: 4px !important;
       --panel-separator-padding-vertical: 4px !important;
       --panel-separator-padding-horizontal: 4px !important;
-      --arrowpanel-menuitem-padding: 2px !important;
+      --panel-menuitem-padding-block: var(--space-xxsmall) !important;
     }
 
     panelmultiview .subviewbutton,

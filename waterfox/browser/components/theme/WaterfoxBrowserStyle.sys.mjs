@@ -104,7 +104,9 @@ export const WaterfoxBrowserStyle = Object.freeze({
       return false;
     }
     for (const [pref, value] of Object.entries(preset)) {
-      defaults.setBoolPref(pref, value);
+      if (defaults.getBoolPref(pref, !value) != value) {
+        defaults.setBoolPref(pref, value);
+      }
     }
     return true;
   },
@@ -125,12 +127,9 @@ export const WaterfoxBrowserStyle = Object.freeze({
       return;
     }
 
-    let preset = STOCK_PRESET;
-    if (style == "photon") {
-      preset = LEGACY_PHOTON_PRESET;
-    } else if (style == "photon-classic") {
-      preset = PHOTON_CLASSIC_PRESET;
-    }
+    // Each style owns its preset, including proton's three trues. Falling
+    // back to STOCK would leave generated trues behind on migrate.
+    const preset = PRESETS[style] ?? STOCK_PRESET;
     for (const [pref, value] of Object.entries(preset)) {
       if (Services.prefs.getBoolPref(pref) == value) {
         Services.prefs.clearUserPref(pref);

@@ -8,12 +8,18 @@
 @media -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic") {
   @media -moz-pref("userChrome.photon-classic.urlbar.enabled", true) {
     :root#main-window {
-      --toolbar-field-border-color: hsla(240, 5%, 5%, 0.25) !important;
-      --toolbar-field-focus-border-color: -moz-accent-color !important;
+      --toolbar-field-border-color-focus: -moz-accent-color !important;
       --urlbar-min-height: 30px !important;
       --urlbar-background-background-color: Field !important;
+      --urlbar-background-background-color-focused: Field !important;
       --urlbar-background-border: 1px solid var(--toolbar-field-border-color) !important;
       --urlbar-background-border-radius: var(--border-radius-xsmall) !important;
+    }
+
+    /* Fixed Photon border only without lightweight themes; themed toolbars
+     * keep their own theme-aware border color through the var above. */
+    :root#main-window:not([lwtheme]) {
+      --toolbar-field-border-color: light-dark(hsla(240, 5%, 5%, 0.25), hsla(0, 0%, 100%, 0.35)) !important;
     }
 
     #urlbar-container,
@@ -52,6 +58,16 @@
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05) !important;
         inset: 0 !important;
         border-radius: var(--border-radius-xsmall) !important;
+      }
+    }
+
+    @media (forced-colors) {
+      .urlbar-background,
+      #searchbar {
+        background-color: Canvas !important;
+        /* stylelint-disable-next-line stylelint-plugin-mozilla/use-design-tokens -- System HCM color, no token equivalent. */
+        border-color: ButtonText !important;
+        box-shadow: none !important;
       }
     }
   } /* end urlbar.enabled */

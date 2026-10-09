@@ -53,14 +53,17 @@ for manifest in [
         else:
             check_exists(f"{base}/{source}", manifest)
 
-# 2. waterfoxChrome.css skin imports resolve into waterfox/browser/themes/.
-chrome_css = read("waterfox/browser/themes/waterfox/waterfoxChrome.css")
-for url in re.findall(r'@import url\("([^"]+)"\)', chrome_css):
-    if url.startswith("chrome://browser/skin/"):
-        check_exists(
-            f"waterfox/browser/themes/{url[len('chrome://browser/skin/'):]}",
-            "waterfoxChrome.css",
-        )
+# 2. Skin @import bundles resolve into waterfox/browser/themes/.
+for bundle in [
+    "waterfox/browser/themes/waterfox/waterfoxChrome.css",
+    "waterfox/browser/themes/photon-classic/photon-classic.css",
+]:
+    for url in re.findall(r'@import url\("([^"]+)"\)', read(bundle)):
+        if url.startswith("chrome://browser/skin/"):
+            check_exists(
+                f"waterfox/browser/themes/{url[len('chrome://browser/skin/'):]}",
+                bundle,
+            )
 
 # 3. Every -moz-pref gate in photon-classic CSS has a default pref.
 declared = set(
@@ -132,7 +135,72 @@ else:
                 "onboarding.html",
             )
 
+def _strip_css_comments(text):
+    return re.sub(r"/\*.*?\*/", "", text, flags=re.S)
+
+
+# 6. Every custom property photon-classic sets is consumed somewhere
+# (upstream var() usage or our own sheets). Catches dead declarations from
+# renamed upstream vars, e.g. the old --toolbar-field-focus-border-color.
+_UPSTREAM_CSS_DIRS = [
+    "browser/themes/shared",
+    "browser/themes/linux",
+    "browser/themes/windows",
+    "browser/themes/osx",
+    "toolkit/themes/shared",
+    "toolkit/themes/linux",
+    "toolkit/themes/windows",
+    "toolkit/themes/osx",
+    "waterfox/browser/themes/lepton",
+    "waterfox/browser/themes/photon-classic",
+    "waterfox/browser/themes/waterfox",
+]
+_consumed = set()
+for css_dir in _UPSTREAM_CSS_DIRS:
+    for css in glob.glob(tree(f"{css_dir}/**/*.css"), recursive=True):
+        with open(css, encoding="utf-8") as handle:
+            _consumed.update(
+                re.findall(r"var\(--([a-zA-Z0-9-]+)", _strip_css_comments(handle.read()))
+            )
+for css in glob.glob(
+    tree("waterfox/browser/themes/photon-classic/**/*.css"), recursive=True
+):
+    with open(css, encoding="utf-8") as handle:
+        text = _strip_css_comments(handle.read())
+    for name in re.findall(r"--([a-zA-Z0-9-]+)\s*:", text):
+        if name not in _consumed:
+            fail(
+                f"{os.path.relpath(css, ROOT)}: --{name} is set but never "
+                "consumed via var() upstream or in our sheets"
+            )
+
+# 7. Every #id selector photon-classic uses exists in browser markup.
+_markup_ids = set()
+for pattern in [
+    "browser/base/content/*.xhtml",
+    "browser/base/content/*.inc.xhtml",
+    "browser/components/**/*.inc.xhtml",
+]:
+    for markup in glob.glob(tree(pattern), recursive=True):
+        with open(markup, encoding="utf-8", errors="replace") as handle:
+            _markup_ids.update(re.findall(r'id="([A-Za-z][\w-]*)"', handle.read()))
+_HEX_COLOR = re.compile(r"^[0-9a-fA-F]{3,8}$")
+for css in glob.glob(
+    tree("waterfox/browser/themes/photon-classic/**/*.css"), recursive=True
+):
+    with open(css, encoding="utf-8") as handle:
+        text = _strip_css_comments(handle.read())
+    text = re.sub(r'url\([^)]*\)', "", text)
+    for ident in set(re.findall(r"#([A-Za-z][\w-]*)", text)):
+        if _HEX_COLOR.match(ident):
+            continue
+        if ident not in _markup_ids:
+            fail(
+                f"{os.path.relpath(css, ROOT)}: #{ident} matches no id in "
+                "browser markup"
+            )
+
 if failures:
     print(f"{len(failures)} coherence check(s) failed", file=sys.stderr)
     sys.exit(1)
-print("theme coherence checks passed")
+print("theme coherence checks passed (extended)")

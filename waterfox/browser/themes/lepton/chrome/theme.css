@@ -288,7 +288,7 @@
     }
   }
   @media (-moz-platform: windows) {
-    @media not -moz-pref("browser.theme.waterfox.browserStyle", "photon"), not -moz-pref("userChrome.tab.color_like_toolbar") {
+    @media not (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")), not -moz-pref("userChrome.tab.color_like_toolbar") {
       :root:is(:not([lwtheme]), :not(:-moz-lwtheme)) {
         --win-proton-tab-selected-bgcolor: color-mix(in srgb, var(--win-bgcolor) 5%, var(--win-component-bgcolor));
       }
@@ -618,7 +618,7 @@
       }
     }
     /*- Proton Tab Selected ----------------------------------------------------*/
-    @media not -moz-pref("browser.theme.waterfox.browserStyle", "photon"), not -moz-pref("userChrome.tab.color_like_toolbar") {
+    @media not (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")), not -moz-pref("userChrome.tab.color_like_toolbar") {
       :root:is(:not([lwtheme]), :not(:-moz-lwtheme)) {
         --mac-proton-tab-selected-bgcolor: color-mix(in srgb, rgb(255, 255, 255) 20%, -moz-dialog);
       }
@@ -670,7 +670,7 @@
     /* For Overwrite */
 
     /* Hard Coded */
-    @media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.color_like_toolbar")) {
+    @media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.color_like_toolbar")) {
       :root #tabbrowser-tabs:not([movingtab]) > #pinned-tabs-container > .tabbrowser-tab > .tab-stack > .tab-background[selected],
       :root #tabbrowser-tabs:not([movingtab]) > #tabbrowser-arrowscrollbox > .tabbrowser-tab > .tab-stack > .tab-background[selected] {
         background: color-mix(in srgb, rgb(255, 255, 255) 15%, -moz-dialog) !important;

@@ -40,7 +40,7 @@
     background-color: transparent !important;
   }
   /*= Remove Tab Border ========================================================*/
-  @media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.connect_to_window")) {
+  @media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.connect_to_window")) {
     /* TARGET: original, photon */
     #TabsToolbar:not([brighttext])
       #tabbrowser-tabs:not([noshadowfortests])
@@ -132,7 +132,7 @@
   }
   /*= Firefox View Border #498 =================================================*/
 
-  @media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.static_separator")) {
+  @media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.static_separator")) {
     #tabbrowser-tabs {
       border-inline-start: none !important;
       padding-inline-start: var(--tab-overflow-pinned-tabs-width) !important;

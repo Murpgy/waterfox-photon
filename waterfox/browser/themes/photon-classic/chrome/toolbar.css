@@ -44,5 +44,13 @@
         border-radius: var(--toolbarbutton-border-radius) !important;
       }
     }
+
+    @media (forced-colors) {
+      .toolbarbutton-1:not([disabled="true"]):hover > .toolbarbutton-icon,
+      .toolbarbutton-1:not([disabled="true"]):hover > .toolbarbutton-badge-stack {
+        /* stylelint-disable-next-line stylelint-plugin-mozilla/use-design-tokens -- System HCM color, no token equivalent. */
+        outline: 1px solid ButtonText !important;
+      }
+    }
   } /* end toolbar.enabled */
 } /* end photon-classic */

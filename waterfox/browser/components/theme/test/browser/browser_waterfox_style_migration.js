@@ -149,6 +149,22 @@ add_task(async function test_waterfox_67_beta_upgrade() {
   );
 });
 
+add_task(async function test_clear_generated_prefs_per_style() {
+  for (const style of ["proton", "photon", "photon-classic"]) {
+    reset();
+    setPreset(WaterfoxBrowserStyle.PRESETS[style]);
+    WaterfoxBrowserStyle.clearGeneratedPrefs(style);
+    ok(
+      WaterfoxBrowserStyle.STYLE_PREFS.every(
+        pref => !Services.prefs.prefHasUserValue(pref)
+      ),
+      `${style} clears its own generated preference values`
+    );
+  }
+  reset();
+  WaterfoxBrowserStyle.applyStyle("nova");
+});
+
 add_task(async function test_waterfox_670_upgrade() {
   for (const style of ["nova", "proton", "photon"]) {
     const override = "userChrome.tab.bar_separator";

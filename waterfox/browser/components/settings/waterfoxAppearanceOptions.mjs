@@ -78,7 +78,8 @@ const PANEL_ICONS = [
 const CHROME_SHEET_SETTING = "waterfox-chrome-sheet";
 const BROWSER_STYLE_SETTING = "waterfox-browser-style";
 
-// leptonChrome.css applies these rules only when Photon is selected.
+// leptonChrome.css applies these rules for Photon and photon-classic alike
+// (Lepton photon gates match both styles); they stay hidden otherwise.
 const PHOTON_ONLY_SETTINGS = new Set([
   "waterfox-opt-tab-connect-to-window",
   "waterfox-opt-tab-color-like-toolbar",

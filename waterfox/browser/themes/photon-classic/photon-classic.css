@@ -1,0 +1,10 @@
+/* Photon-classic bundle, loaded per-window by WaterfoxTheme only when
+ * browser.theme.waterfox.browserStyle == "photon-classic" and custom
+ * stylesheets are enabled. Kept out of waterfoxChrome.css so the
+ * chromeSheet kill-switch and lazy per-style loading both apply. */
+
+@import url("chrome://browser/skin/photon-classic/tokens.css");
+@import url("chrome://browser/skin/photon-classic/chrome/tabs.css");
+@import url("chrome://browser/skin/photon-classic/chrome/toolbar.css");
+@import url("chrome://browser/skin/photon-classic/chrome/urlbar.css");
+@import url("chrome://browser/skin/photon-classic/chrome/panelUI.css");

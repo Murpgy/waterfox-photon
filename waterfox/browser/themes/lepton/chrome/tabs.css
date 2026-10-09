@@ -49,7 +49,7 @@
       }
     }
     @media not -moz-pref("userChrome.tabbar.on_bottom.above_bookmark") {
-      @media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.connect_to_window")) {
+      @media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.connect_to_window")) {
         @media -moz-pref("userChrome.tab.color_like_toolbar") {
           #navigator-toolbox {
             border-bottom-color: var(
@@ -161,7 +161,7 @@
           }
         }
         @media not -moz-pref("userChrome.tabbar.on_bottom.above_bookmark") {
-          @media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.connect_to_window")) {
+          @media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.connect_to_window")) {
             @media -moz-pref("userChrome.tab.color_like_toolbar") {
               #navigator-toolbox {
                 border-bottom-color: var(
@@ -1995,7 +1995,7 @@
   }
 }
 
-@media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.connect_to_window")) {
+@media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.connect_to_window")) {
   #TabsToolbar #tabbrowser-tabs:not([orient="vertical"]) {
     max-height: var(--tab-min-height);
   }
@@ -2050,14 +2050,14 @@
 }
 /*= Selected Tab =============================================================*/
 /*= Selected Tab - Bold ======================================================*/
-@media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.selected_bold")) {
+@media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.selected_bold")) {
   .tab-label:is([selected], [attention]) {
     font-weight: 600;
   }
 }
 
 /*= Selected Tab - Color like toolbar ========================================*/
-@media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.color_like_toolbar")) {
+@media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.color_like_toolbar")) {
   :root {
     --tab-background-color-selected: var(--toolbar-background-color) !important;
   }
@@ -2152,7 +2152,7 @@
   }
 }
 /*= Multi Selected Color - More Contrast =====================================*/
-@media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.multi_selected")) {
+@media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.multi_selected")) {
   #TabsToolbar,
   #vertical-tabs {
     --uc-multiselected-tab-bgcolor: color-mix(in srgb, currentColor 28%, var(--toolbar-bgcolor, transparent));
@@ -2204,7 +2204,7 @@
   }
 }
 /*= Selected Tab - Box Shadow ================================================*/
-@media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.box_shadow")) {
+@media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.box_shadow")) {
   #TabsToolbar {
     --uc-tab-shadow-color: var(--tab-line-color, var(--lwt-tab-line-color, var(--tabs-border-color, rgba(128, 128, 142, 0.9))));
     --uc-tab-shadow-color-bundle: var(--tab-line-color, var(--lwt-tab-line-color, rgba(128, 128, 142, 0.9)));
@@ -2268,7 +2268,7 @@
   }
 }
 /*= Selected Tab - Bottom Rounded Corner =====================================*/
-@media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.bottom_rounded_corner")) {
+@media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.bottom_rounded_corner")) {
   @media not -moz-pref("userChrome.tab.bottom_rounded_corner.wave") {
     @media not -moz-pref("userChrome.tab.bottom_rounded_corner.australis") {
       @media not -moz-pref("userChrome.tab.bottom_rounded_corner.chrome") {
@@ -2601,7 +2601,7 @@
   }
 }
 /*= Selected Tab - Photon like contextline ===================================*/
-@media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.photon_like_contextline") or -moz-pref("userChrome.tab.static_separator") or -moz-pref("userChrome.tab.bar_separator")) {
+@media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.photon_like_contextline") or -moz-pref("userChrome.tab.static_separator") or -moz-pref("userChrome.tab.bar_separator")) {
   @media -moz-pref("userChrome.tab.blue_accent") {
     :root,
     #tabbrowser-tabs {
@@ -2621,7 +2621,7 @@
     }
   }
 }
-@media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.photon_like_contextline")) {
+@media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.photon_like_contextline")) {
   .tab-context-line {
     display: inline-flex !important;
     display: -moz-inline-box !important;
@@ -2695,8 +2695,8 @@
   }
 }
 /*= Selected Tab - Supernova like contextline ===================================*/
-@media not -moz-pref("browser.theme.waterfox.browserStyle", "photon"), not -moz-pref("userChrome.tab.photon_like_contextline") {
-  @media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.supernova_like_contextline")) {
+@media not (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")), not -moz-pref("userChrome.tab.photon_like_contextline") {
+  @media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.supernova_like_contextline")) {
     /* context line styles */
     tabs tab.tabbrowser-tab > .tab-stack > .tab-background > .tab-context-line {
       display: inline-flex !important;
@@ -2787,12 +2787,12 @@
         0 0 1px var(--tabs-border-color),
         0 0 4px rgba(128, 128, 142, 0.5) !important;
     }
-    @media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.contextline_blue_accent")) {
+    @media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.contextline_blue_accent")) {
       #tabbrowser-tabs .tab-context-line {
         --tab-line-color: #45a1ff !important;
       }
     }
-    @media not -moz-pref("browser.theme.waterfox.browserStyle", "photon"), not -moz-pref("userChrome.tab.contextline_blue_accent") {
+    @media not (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")), not -moz-pref("userChrome.tab.contextline_blue_accent") {
       @media (-moz-gtk-csd-available) {
         :root:is(:not([lwtheme]), :not(:-moz-lwtheme)) #tabbrowser-tabs .tab-context-line {
           --tab-line-color: AccentColor !important; /* -moz-accent-color */
@@ -2808,7 +2808,7 @@
 }
 /*= Unselected Tab - Divide line =============================================*/
 /*= Unselected Tab - Dynamic Separator =======================================*/
-@media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.dynamic_separator")) {
+@media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.dynamic_separator")) {
   #pinned-tabs-container,
   #tabbrowser-arrowscrollbox {
     --start-tab-separator-position-x: -1.5px;
@@ -3024,7 +3024,7 @@
   }
 }
 /*= Unselected Tab - Static Separator ========================================*/
-@media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.static_separator")) {
+@media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.static_separator")) {
   #TabsToolbar {
     --toolbarseparator-color: color-mix(in srgb, currentColor 30%, transparent);
   }
@@ -3073,7 +3073,7 @@
   }
 }
 /*= Unselected Tab - Bar Separator ===========================================*/
-@media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.bar_separator")) {
+@media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.bar_separator")) {
   #tabbrowser-tabs[orient="horizontal"] .tab-stack::before,
   #tabbrowser-tabs[orient="vertical"] .tabbrowser-tab[visuallyselected] .tab-stack::before {
     /* Box Model */
@@ -3117,7 +3117,7 @@
 }
 /*= New tab button ============================================================*/
 /*= New tab button - Looks like tab ==========================================*/
-@media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.newtab_button_like_tab")) {
+@media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.newtab_button_like_tab")) {
   @media -moz-pref("userChrome.tab.connect_to_window") {
     #tabbrowser-tabs:not([orient="vertical"]) #tabs-newtab-button {
       /* Size */
@@ -3286,7 +3286,7 @@
   }
 }
 /*= New tab button - Smaller button ==========================================*/
-@media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.newtab_button_smaller")) {
+@media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.newtab_button_smaller")) {
   #tabs-newtab-button > .toolbarbutton-icon {
     --tab-border-radius: var(--toolbarbutton-border-radius);
     margin-left: 1px;
@@ -3295,7 +3295,7 @@
   }
 }
 /*= New tab button - Proton like button ======================================*/
-@media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.newtab_button_proton")) {
+@media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.newtab_button_proton")) {
   :root:not([uidensity="touch"]) #tabs-newtab-button > .toolbarbutton-icon {
     --toolbarbutton-padding-inner: calc((var(--tab-min-height) - 16px) / 2 - 1px);
   }
@@ -3313,7 +3313,7 @@
 }
 /*= Clipped tabs =============================================================*/
 /** Clipped tabs - Letters cleary *********************************************/
-@media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.letters_cleary")) {
+@media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.letters_cleary")) {
   #tabbrowser-tabs[closebuttons="activetab"] {
     --inline-tab-padding: 7px !important; /* Original: 8px */
   }
@@ -3349,7 +3349,7 @@
   }
 }
 /** Clipped tabs - Show close button at hover *********************************/
-@media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.close_button_at_hover")) {
+@media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.close_button_at_hover")) {
   #tabbrowser-tabs[closebuttons="activetab"]
     > #pinned-tabs-container
     > .tabbrowser-tab:not([pinned])
@@ -3444,7 +3444,7 @@
   }
 }
 /** Clipped tabs - Show close button at pinned tab ****************************/
-@media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.close_button_at_pinned")) {
+@media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.close_button_at_pinned")) {
   @media not -moz-pref("userChrome.tabbar.as_titlebar") {
     #tabbrowser-tabs {
       --uc-close-button-size: 24px;
@@ -3522,7 +3522,7 @@
   }
 }
 /** Clipped tabs - Always show tab icon ***************************************/
-@media -moz-pref("browser.theme.waterfox.browserStyle", "photon") {
+@media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) {
   .tab-icon-image:not([src], [pinned], [crashed], [busy]) {
     display: inline-flex !important;
     display: -moz-inline-box !important;
@@ -3534,7 +3534,7 @@
 /*= Sound Tab - Show Label ===================================================*/
 
 /*= Sound Tab - Show with Favicons ===========================================*/
-@media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.sound_with_favicons")) {
+@media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.sound_with_favicons")) {
   /* Makes the favicons always visible (also on hover) */
   .tab-icon-image:not([pinned]) {
     opacity: 1 !important;
@@ -3716,7 +3716,7 @@
   }
 }
 /*= PictureInPicture Tab - Show PIP Icon =====================================*/
-@media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.pip")) {
+@media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.pip")) {
   #tabbrowser-tabs:not([closebuttons="activetab"]) .tabbrowser-tab[pictureinpicture]:not([pinned]) .tab-content::after,
   #tabbrowser-tabs[closebuttons="activetab"] .tabbrowser-tab[pictureinpicture]:not([pinned], :hover) .tab-content::after {
     content: "";
@@ -3753,7 +3753,7 @@
   }
 }
 /*= Container Tab - Color line at icon's bottom ==============================*/
-@media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.container")) {
+@media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.container")) {
   @media not -moz-pref("userChrome.tabbar.as_titlebar") {
     @media not -moz-pref("userChrome.tab.photon_like_contextline") {
       .tab-context-line {
@@ -3901,7 +3901,7 @@
   }
 }
 /*= Crashed Tab - Don't show Favicons ========================================*/
-@media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.crashed")) {
+@media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.crashed")) {
   .tab-icon-image[crashed] {
     display: none !important;
   }

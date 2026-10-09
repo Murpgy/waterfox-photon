@@ -6,14 +6,21 @@
 const { WaterfoxBrowserStyle } = ChromeUtils.importESModule(
   "resource:///modules/WaterfoxBrowserStyle.sys.mjs"
 );
+const { WaterfoxTheme } = ChromeUtils.importESModule(
+  "resource:///modules/WaterfoxTheme.sys.mjs"
+);
 
 const NOVA_PREF = "browser.nova.enabled";
 const STYLE_PREF = "browser.theme.waterfox.browserStyle";
 const DENSITY_PREF = "browser.uidensity";
+const CHROME_SHEET_PREF = "browser.theme.waterfox.chromeSheet";
 
 const OVERLAY_GATES = [
   "userChrome.photon-classic.tabs.enabled",
+  "userChrome.photon-classic.tabs.separators",
+  "userChrome.photon-classic.tabs.top-line",
   "userChrome.photon-classic.toolbar.enabled",
+  "userChrome.photon-classic.toolbar.square-buttons",
   "userChrome.photon-classic.urlbar.enabled",
   "userChrome.photon-classic.urlbar.no-breakout",
   "userChrome.photon-classic.panel.enabled",
@@ -25,6 +32,7 @@ function reset() {
     NOVA_PREF,
     STYLE_PREF,
     DENSITY_PREF,
+    CHROME_SHEET_PREF,
     ...WaterfoxBrowserStyle.STYLE_PREFS,
     ...OVERLAY_GATES,
   ]) {
@@ -193,6 +201,60 @@ add_task(function test_photon_classic_live_tokens() {
     rootVar("--tab-border-radius"),
     "0px",
     "nova restores rounded tabs once classic is off"
+  );
+  reset();
+  WaterfoxBrowserStyle.applyStyle("nova");
+});
+
+add_task(function test_photon_classic_densities() {
+  reset();
+  WaterfoxBrowserStyle.setStyle("photon-classic");
+  for (const [density, height, padding] of [
+    [1, "29px", "6px"],
+    [2, "41px", "9px"],
+  ]) {
+    Services.prefs.setIntPref(DENSITY_PREF, density);
+    is(
+      rootVar("--tab-min-height"),
+      height,
+      `photon-classic tab height at density ${density}`
+    );
+    is(
+      rootVar("--toolbarbutton-padding-inner"),
+      padding,
+      `photon-classic button padding at density ${density}`
+    );
+  }
+  reset();
+  WaterfoxBrowserStyle.applyStyle("nova");
+});
+
+add_task(function test_photon_classic_respects_vertical_tabs() {
+  reset();
+  Services.prefs.setIntPref(DENSITY_PREF, 0);
+  Services.prefs.setBoolPref("sidebar.verticalTabs", true);
+  WaterfoxBrowserStyle.setStyle("photon-classic");
+  isnot(
+    rootVar("--tab-min-height"),
+    "33px",
+    "vertical layouts keep stock metrics under photon-classic"
+  );
+  Services.prefs.clearUserPref("sidebar.verticalTabs");
+  reset();
+  WaterfoxBrowserStyle.applyStyle("nova");
+});
+
+add_task(function test_photon_classic_sheet_gating() {
+  reset();
+  WaterfoxBrowserStyle.setStyle("photon-classic");
+  ok(
+    WaterfoxTheme.shouldLoadPhoton(),
+    "photon sheet loads while classic is selected and sheets are on"
+  );
+  Services.prefs.setIntPref(CHROME_SHEET_PREF, 2);
+  ok(
+    !WaterfoxTheme.shouldLoadPhoton(),
+    "chromeSheet off kills the photon sheet"
   );
   reset();
   WaterfoxBrowserStyle.applyStyle("nova");

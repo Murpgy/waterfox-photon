@@ -2,7 +2,7 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 /** Reduce Padding ************************************************************/
 /*= Tab Bar - Distribution padding, radius ===================================*/
-@media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.lepton_like_padding") or -moz-pref("userChrome.tab.photon_like_padding")) {
+@media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.lepton_like_padding") or -moz-pref("userChrome.tab.photon_like_padding")) {
   :root {
     --proton-tab-block-margin: var(--tab-block-margin) !important; /* Original: 4px, Legacy */
   }
@@ -11,7 +11,7 @@
     --tab-block-margin: 4px !important;
   }
 }
-@media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.lepton_like_padding")) {
+@media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.lepton_like_padding")) {
   :root {
     --tab-block-margin: 2px !important; /* New version of --proton-tab-block-margin */
   }
@@ -22,7 +22,7 @@
     margin-block: -1px !important;
   }
 }
-@media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.photon_like_padding")) {
+@media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.photon_like_padding")) {
   :root {
     --tab-block-margin: 0px !important;
   }
@@ -106,12 +106,12 @@
     padding-left: var(--newtab-button-width-padding) !important;
     padding-right: var(--newtab-button-width-padding) !important;
   }
-  @media not -moz-pref("browser.theme.waterfox.browserStyle", "photon"), not -moz-pref("userChrome.tab.photon_like_padding") {
+  @media not (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")), not -moz-pref("userChrome.tab.photon_like_padding") {
     #tabbrowser-tabs[haspinnedtabs] > #tabbrowser-arrowscrollbox > .tabbrowser-tab:is([first-visible-unpinned-tab], :nth-child(1 of :not([pinned], [hidden]))) {
       margin-inline-start: 1px !important;
     }
   }
-  @media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.photon_like_padding")) {
+  @media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.photon_like_padding")) {
     #tabbrowser-tabs[haspinnedtabs] > #tabbrowser-arrowscrollbox > .tabbrowser-tab:is([first-visible-unpinned-tab], :nth-child(1 of :not([pinned], [hidden]))) {
       margin-inline-start: 0 !important;
     }
@@ -135,12 +135,12 @@
     /* Original: 2px*/
   }
   /* Tab - Max Size */
-  @media not -moz-pref("browser.theme.waterfox.browserStyle", "photon"), not -moz-pref("userChrome.tab.photon_like_padding") {
+  @media not (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")), not -moz-pref("userChrome.tab.photon_like_padding") {
     :root {
       --tab-max-width: 240px;
     }
   }
-  @media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.photon_like_padding")) {
+  @media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.photon_like_padding")) {
     :root {
       --tab-max-width: 225px;
     }
@@ -181,8 +181,8 @@
   #tabbrowser-tabs[orient="horizontal"] .tab-group-label-container {
     margin-inline-start: 4px !important;
   }
-  @media not -moz-pref("browser.theme.waterfox.browserStyle", "photon"), not -moz-pref("userChrome.tab.photon_like_padding") {
-    @media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.lepton_like_padding")) {
+  @media not (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")), not -moz-pref("userChrome.tab.photon_like_padding") {
+    @media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.lepton_like_padding")) {
       #TabsToolbar .tabbrowser-tab[pinned] {
         padding-inline: 1px !important;
       }
@@ -197,7 +197,7 @@
       margin-inline-end: -2px !important;
     }
   }
-  @media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.photon_like_padding")) {
+  @media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.photon_like_padding")) {
     .tabbrowser-tab {
       padding-inline: 0 !important;
     }
@@ -250,7 +250,7 @@
 }
 @media -moz-pref("userChrome.padding.tabbar_height") {
   /* Toolbar Height */
-  @media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.lepton_like_padding")) {
+  @media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.lepton_like_padding")) {
     :root:not([uidensity]) {
       --tab-min-height: 36px !important;
     }
@@ -261,7 +261,7 @@
       --tab-min-height: 41px !important;
     }
   }
-  @media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.photon_like_padding")) {
+  @media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.photon_like_padding")) {
     :root:not([uidensity]) {
       --tab-min-height: 32px !important;
     }
@@ -277,8 +277,8 @@
       margin-top: 0 !important;
     }
   }
-  @media not -moz-pref("browser.theme.waterfox.browserStyle", "photon"), not -moz-pref("userChrome.tab.lepton_like_padding") {
-    @media not -moz-pref("browser.theme.waterfox.browserStyle", "photon"), not -moz-pref("userChrome.tab.photon_like_padding") {
+  @media not (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")), not -moz-pref("userChrome.tab.lepton_like_padding") {
+    @media not (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")), not -moz-pref("userChrome.tab.photon_like_padding") {
       :root:not([uidensity]) {
         --tab-min-height: 36px !important; /* 38px -> 36px */
       }
@@ -292,7 +292,7 @@
     --tab-min-height_mlt: calc(var(--tab-min-height) + 2 * (var(--tab-block-margin, var(--proton-tab-block-margin, 0px)))) !important;
   }
 
-  @media -moz-pref("browser.theme.waterfox.browserStyle", "photon") and (-moz-pref("userChrome.tab.connect_to_window")) {
+  @media (-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and (-moz-pref("userChrome.tab.connect_to_window")) {
     :root {
       --tab-min-height_mlt: calc(var(--tab-min-height) + var(--tab-block-margin, var(--proton-tab-block-margin, 0px))) !important;
     }
@@ -348,7 +348,7 @@
   }
 }
 /*= Tool Bar - Button Padding ================================================*/
-@media -moz-pref("userChrome.padding.toolbar_button") or (-moz-pref("browser.theme.waterfox.browserStyle", "photon") and -moz-pref("userChrome.tab.newtab_button_smaller")) {
+@media -moz-pref("userChrome.padding.toolbar_button") or ((-moz-pref("browser.theme.waterfox.browserStyle", "photon") or -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic")) and -moz-pref("userChrome.tab.newtab_button_smaller")) {
   :root {
     --uc-small-toolbarbutton-inner-padding: 6px;
     --uc-toolbarbutton-inner-padding-default: 8px;
