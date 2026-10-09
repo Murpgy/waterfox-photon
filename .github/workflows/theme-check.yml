@@ -100,11 +100,15 @@ jobs:
     # no release channel, no tests in the binary; the artifacts are unsigned
     # dogfood builds for validating the theme at full optimization.
     # Platforms build in parallel (no needs: between them), so wall-clock is
-    # the slower platform, not the sum. Plain --enable-lto (thin, C++ only)
-    # on both: upstream's own validated setting per platform. Cross-language
-    # LTO is deliberately avoided -- it needs the exact upstream trio
-    # (wfx_lto_mode=cross + wfx_rustc_bootstrap=1 + nightly -Z rustflags)
-    # and fails the libxul link with ld.lld "Invalid record" otherwise.
+    # the slower platform, not the sum. LTO is per-platform on purpose:
+    # Linux uses plain --enable-lto (thin, C++ only, upstream's validated
+    # setting). Windows omits LTO entirely: clang-22 emits bitcode
+    # attributes that the bundled rustc-1.98 LLVM 21 reader rejects
+    # ("Unknown attribute kind (105)") once -flto=thin/-Cembed-bitcode
+    # enter the mixed C/Rust link. Upstream only survives cross-LTO via its
+    # exact trio (wfx_lto_mode=cross + wfx_rustc_bootstrap=1 + nightly -Z
+    # rustflags); for a theme-validation artifact, correctness beats the
+    # last benchmark percent.
     if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     timeout-minutes: 360
@@ -139,7 +143,6 @@ jobs:
           wfx_cross_build=1
           . "$topsrcdir/waterfox/build/mozconfig.common"
           ac_add_options --disable-tests
-          ac_add_options --enable-lto
           ac_add_options --enable-optimize="-clang:-march=x86-64-v2 -clang:-mtune=haswell -clang:-O3 -w"
           EOF
           else
