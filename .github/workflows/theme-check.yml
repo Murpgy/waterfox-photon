@@ -108,6 +108,8 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     timeout-minutes: 360
+    env:
+      RUST_TOOLCHAIN: "1.98.1"
     strategy:
       fail-fast: false
       matrix:
@@ -164,10 +166,15 @@ jobs:
         shell: bash
         run: scripts/fetch-clang-22.sh
 
+      - name: Pin Rust toolchain (upstream release toolchain)
+        shell: bash
+        run: rustup default "${RUST_TOOLCHAIN}"
+
       - name: Add Windows Rust target
         if: ${{ matrix.rust_target != '' }}
         shell: bash
-        run: rustup target add --toolchain "1.98.1" "${{ matrix.rust_target }}"
+        run: |
+          rustup target add --toolchain "${RUST_TOOLCHAIN}" "${{ matrix.rust_target }}"
 
       - name: Optimized build
         shell: bash
