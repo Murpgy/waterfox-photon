@@ -25,16 +25,18 @@ permissions:
 env:
   MOZ_NOSPAM: "1"
   RUST_TOOLCHAIN: "1.98.1"
-  # Cap cargo's own parallelism: MOZ_MAKE_FLAGS only constrains make, while
-  # cargo/rustc would otherwise use every vCPU and blow the 16GB runner.
-  CARGO_BUILD_JOBS: "2"
+  # Fully serial compilation: the 16GB runner OOMs with any concurrency on
+  # the Windows cross link (2x clang-cl + 2x rustc exceeded 14Gi RAM + 5Gi
+  # swap before the SIGTERM). Slow (~2-3h) but survives; sccache fills the
+  # cache meanwhile so later runs get faster AND leaner.
+  CARGO_BUILD_JOBS: "1"
   # sccache with the GitHub Actions cache backend (see build-linux.yml).
   SCCACHE_GHA_ENABLED: "true"
 
 jobs:
   build:
     name: Optimized build (Windows x64, -O3)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 360
     steps:
       - name: Checkout
@@ -55,7 +57,7 @@ jobs:
           ac_add_options --disable-tests
           ac_add_options --enable-optimize="-clang:-march=x86-64-v2 -clang:-mtune=haswell -clang:-O3 -w"
           EOF
-          echo 'mk_add_options MOZ_MAKE_FLAGS="-j2"' >> .mozconfig
+          echo 'mk_add_options MOZ_MAKE_FLAGS="-j1"' >> .mozconfig
 
       - name: Provision emergency swap
         shell: bash

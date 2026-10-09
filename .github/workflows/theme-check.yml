@@ -35,7 +35,7 @@ env:
 jobs:
   lint:
     name: Lint theme files
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
       - name: Checkout
@@ -65,7 +65,7 @@ jobs:
     name: Theme mochitests (Linux dev build)
     # Manual dispatch only: needs a full build, far too heavy per-push.
     if: ${{ github.event_name == 'workflow_dispatch' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 360
     env:
       SCCACHE_GHA_ENABLED: "true"
