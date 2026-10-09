@@ -28,6 +28,8 @@ env:
   # Cap cargo's own parallelism: MOZ_MAKE_FLAGS only constrains make, while
   # cargo/rustc would otherwise use every vCPU and blow the 16GB runner.
   CARGO_BUILD_JOBS: "2"
+  # sccache with the GitHub Actions cache backend (see build-linux.yml).
+  SCCACHE_GHA_ENABLED: "true"
 
 jobs:
   build:
@@ -39,6 +41,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
+
+      - name: Install sccache
+        uses: mozilla-actions/sccache-action@9e7fa8a12102821edf02ca5dbea1acd0f89a2696 # v0.0.10
 
       - name: Optimized mozconfig (Windows cross, -O3, no LTO, -j2)
         shell: bash
