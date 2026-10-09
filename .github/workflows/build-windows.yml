@@ -25,6 +25,9 @@ permissions:
 env:
   MOZ_NOSPAM: "1"
   RUST_TOOLCHAIN: "1.98.1"
+  # Cap cargo's own parallelism: MOZ_MAKE_FLAGS only constrains make, while
+  # cargo/rustc would otherwise use every vCPU and blow the 16GB runner.
+  CARGO_BUILD_JOBS: "2"
 
 jobs:
   build:
@@ -82,7 +85,11 @@ jobs:
 
       - name: Optimized build
         shell: bash
-        run: ./mach build
+        run: |
+          (while true; do echo "--- mem $(date -u +%H:%M:%S) ---"; free -h; sleep 180; done) &
+          echo "$!" > /tmp/memwatch.pid
+          ./mach build
+          kill "$(cat /tmp/memwatch.pid)" || true
 
       - name: Package
         shell: bash
