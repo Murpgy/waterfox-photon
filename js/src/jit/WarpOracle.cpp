@@ -109,14 +109,14 @@ WarpOracle::WarpOracle(JSContext* cx, MIRGenerator& mirGen,
       alloc_(mirGen.alloc()),
       outerScript_(outerScript) {}
 
-mozilla::GenericErrorResult<AbortReason> WarpOracle::abort(HandleScript script,
+MOZ_COLD mozilla::GenericErrorResult<AbortReason> WarpOracle::abort(HandleScript script,
                                                            AbortReason r) {
   auto res = mirGen_.abort(r);
   JitSpew(JitSpew_IonAbort, "aborted @ %s", script->filename());
   return res;
 }
 
-mozilla::GenericErrorResult<AbortReason> WarpOracle::abort(HandleScript script,
+MOZ_COLD mozilla::GenericErrorResult<AbortReason> WarpOracle::abort(HandleScript script,
                                                            AbortReason r,
                                                            const char* message,
                                                            ...) {

@@ -72,6 +72,7 @@
 #endif
 
 #include "builtin/Array.h"
+#include "builtin/JSON.h"
 #include "builtin/MapObject.h"
 #include "builtin/ModuleObject.h"
 #include "builtin/RegExp.h"
@@ -2619,6 +2620,26 @@ static bool Options(JSContext* cx, unsigned argc, Value* vp) {
     return false;
   }
   args.rval().setString(str);
+  return true;
+}
+
+// Waterfox benchmark variant (item 6): dump fast-stringify bail counters as
+// {reason: count}. All zeros unless javascript.options.json_bail_counters is
+// on. Shell-only diagnostic for jit-tests and local benchmarking.
+static bool GetStringifyBailCounts(JSContext* cx, unsigned argc, Value* vp) {
+  CallArgs args = CallArgsFromVp(argc, vp);
+
+  RootedObject obj(cx, NewPlainObject(cx));
+  if (!obj) {
+    return false;
+  }
+  for (size_t i = 0; i < js::StringifyBailReasonCount(); i++) {
+    RootedValue count(cx, NumberValue(double(js::StringifyBailCount(i))));
+    if (!JS_SetProperty(cx, obj, js::StringifyBailReasonName(i), count)) {
+      return false;
+    }
+  }
+  args.rval().setObject(*obj);
   return true;
 }
 
@@ -9958,6 +9979,11 @@ static const JSFunctionSpecWithHelp shell_functions[] = {
     JS_FN_HELP("options", Options, 0, 0,
 "options([option ...])",
 "  Get or toggle JavaScript options."),
+
+    JS_FN_HELP("getStringifyBailCounts", GetStringifyBailCounts, 0, 0,
+"getStringifyBailCounts()",
+"  Return fast-stringify bail counters as {reason: count} (Waterfox item 6;\n"
+"      all zeros unless javascript.options.json_bail_counters is on)."),
 
     JS_FN_HELP("load", Load, 1, 0,
 "load(['foo.js' ...])",

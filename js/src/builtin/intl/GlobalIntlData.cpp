@@ -15,6 +15,7 @@
 #include "builtin/intl/NumberFormat.h"
 #include "builtin/temporal/TimeZone.h"
 #include "gc/Tracer.h"
+#include "js/Prefs.h"
 #include "js/RootingAPI.h"
 #include "js/TracingAPI.h"
 #include "js/Value.h"
@@ -30,11 +31,23 @@ using namespace js::intl;
 void js::intl::GlobalIntlData::resetCollator() {
   collatorLocale_ = nullptr;
   collator_ = nullptr;
+  for (auto& entry : collatorOptionful_) {
+    entry.locale_ = nullptr;
+    entry.options_ = nullptr;
+    entry.formatter_ = nullptr;
+  }
+  collatorOptionfulNext_ = 0;
 }
 
 void js::intl::GlobalIntlData::resetNumberFormat() {
   numberFormatLocale_ = nullptr;
   numberFormat_ = nullptr;
+  for (auto& entry : numberFormatOptionful_) {
+    entry.locale_ = nullptr;
+    entry.options_ = nullptr;
+    entry.formatter_ = nullptr;
+  }
+  numberFormatOptionfulNext_ = 0;
 }
 
 void js::intl::GlobalIntlData::resetDateTimeFormat() {
@@ -42,6 +55,22 @@ void js::intl::GlobalIntlData::resetDateTimeFormat() {
   dateTimeFormatToLocaleAll_ = nullptr;
   dateTimeFormatToLocaleDate_ = nullptr;
   dateTimeFormatToLocaleTime_ = nullptr;
+  for (auto& entry : dateTimeFormatOptionfulAll_) {
+    entry.locale_ = nullptr;
+    entry.options_ = nullptr;
+    entry.formatter_ = nullptr;
+  }
+  for (auto& entry : dateTimeFormatOptionfulDate_) {
+    entry.locale_ = nullptr;
+    entry.options_ = nullptr;
+    entry.formatter_ = nullptr;
+  }
+  for (auto& entry : dateTimeFormatOptionfulTime_) {
+    entry.locale_ = nullptr;
+    entry.options_ = nullptr;
+    entry.formatter_ = nullptr;
+  }
+  dateTimeFormatOptionfulNext_ = 0;
 }
 
 bool js::intl::GlobalIntlData::ensureRealmLocale(JSContext* cx) {
@@ -305,6 +334,111 @@ JS::Symbol* js::intl::GlobalIntlData::fallbackSymbol(JSContext* cx) {
   return fallbackSymbol_;
 }
 
+JSObject* js::intl::GlobalIntlData::lookupOptionful(
+    OptionfulEntry* entries, JS::Handle<JSLinearString*> locale,
+    JS::Handle<JSObject*> options) {
+  for (size_t i = 0; i < OptionfulCacheSize; i++) {
+    OptionfulEntry& entry = entries[i];
+    if (!entry.formatter_.get() || entry.options_.get() != options.get()) {
+      continue;
+    }
+    if (!EqualLocale(entry.locale_.get(), locale.get())) {
+      continue;
+    }
+    return entry.formatter_.get();
+  }
+  return nullptr;
+}
+
+void js::intl::GlobalIntlData::storeOptionful(
+    OptionfulEntry* entries, size_t* next,
+    JS::Handle<JSLinearString*> locale, JS::Handle<JSObject*> options,
+    JS::Handle<JSObject*> formatter) {
+  OptionfulEntry& entry = entries[*next % OptionfulCacheSize];
+  entry.locale_ = locale;
+  entry.options_ = options;
+  entry.formatter_ = formatter;
+  *next = (*next + 1) % OptionfulCacheSize;
+}
+
+GlobalIntlData::OptionfulEntry*
+js::intl::GlobalIntlData::dateTimeFormatOptionfulEntries(
+    DateTimeFormatKind kind) {
+  switch (kind) {
+    case DateTimeFormatKind::All:
+      return dateTimeFormatOptionfulAll_;
+    case DateTimeFormatKind::Date:
+      return dateTimeFormatOptionfulDate_;
+    case DateTimeFormatKind::Time:
+      return dateTimeFormatOptionfulTime_;
+  }
+  MOZ_CRASH("invalid DateTimeFormatKind");
+}
+
+CollatorObject* js::intl::GlobalIntlData::lookupOptionfulCollator(
+    JSContext* cx, JS::Handle<JSLinearString*> locale,
+    JS::Handle<JSObject*> options) {
+  if (!JS::Prefs::intl_optionful_cache()) {
+    return nullptr;
+  }
+  if (!ensureRealmLocale(cx)) {
+    return nullptr;
+  }
+  JSObject* hit = lookupOptionful(collatorOptionful_, locale, options);
+  return hit ? &hit->as<CollatorObject>() : nullptr;
+}
+
+void js::intl::GlobalIntlData::storeOptionfulCollator(
+    JS::Handle<JSLinearString*> locale, JS::Handle<JSObject*> options,
+    JS::Handle<JSObject*> formatter) {
+  storeOptionful(collatorOptionful_, &collatorOptionfulNext_, locale, options,
+                 formatter);
+}
+
+NumberFormatObject* js::intl::GlobalIntlData::lookupOptionfulNumberFormat(
+    JSContext* cx, JS::Handle<JSLinearString*> locale,
+    JS::Handle<JSObject*> options) {
+  if (!JS::Prefs::intl_optionful_cache()) {
+    return nullptr;
+  }
+  if (!ensureRealmLocale(cx)) {
+    return nullptr;
+  }
+  JSObject* hit = lookupOptionful(numberFormatOptionful_, locale, options);
+  return hit ? &hit->as<NumberFormatObject>() : nullptr;
+}
+
+void js::intl::GlobalIntlData::storeOptionfulNumberFormat(
+    JS::Handle<JSLinearString*> locale, JS::Handle<JSObject*> options,
+    JS::Handle<JSObject*> formatter) {
+  storeOptionful(numberFormatOptionful_, &numberFormatOptionfulNext_, locale,
+                 options, formatter);
+}
+
+DateTimeFormatObject* js::intl::GlobalIntlData::lookupOptionfulDateTimeFormat(
+    JSContext* cx, DateTimeFormatKind kind,
+    JS::Handle<JSLinearString*> locale, JS::Handle<JSObject*> options) {
+  if (!JS::Prefs::intl_optionful_cache()) {
+    return nullptr;
+  }
+  if (!ensureRealmLocale(cx)) {
+    return nullptr;
+  }
+  if (!ensureRealmTimeZone(cx)) {
+    return nullptr;
+  }
+  JSObject* hit =
+      lookupOptionful(dateTimeFormatOptionfulEntries(kind), locale, options);
+  return hit ? &hit->as<DateTimeFormatObject>() : nullptr;
+}
+
+void js::intl::GlobalIntlData::storeOptionfulDateTimeFormat(
+    DateTimeFormatKind kind, JS::Handle<JSLinearString*> locale,
+    JS::Handle<JSObject*> options, JS::Handle<JSObject*> formatter) {
+  storeOptionful(dateTimeFormatOptionfulEntries(kind),
+                 &dateTimeFormatOptionfulNext_, locale, options, formatter);
+}
+
 void js::intl::GlobalIntlData::trace(JSTracer* trc) {
   TraceEdge(trc, &realmTimeZone_, "GlobalIntlData::realmTimeZone_");
   TraceEdge(trc, &defaultTimeZone_, "GlobalIntlData::defaultTimeZone_");
@@ -326,6 +460,24 @@ void js::intl::GlobalIntlData::trace(JSTracer* trc) {
             "GlobalIntlData::dateTimeFormatToLocaleDate_");
   TraceEdge(trc, &dateTimeFormatToLocaleTime_,
             "GlobalIntlData::dateTimeFormatToLocaleTime_");
+
+  for (size_t i = 0; i < OptionfulCacheSize; i++) {
+    TraceEdge(trc, &collatorOptionful_[i].locale_, "GlobalIntlData::collatorOptionfulLocale");
+    TraceEdge(trc, &collatorOptionful_[i].options_, "GlobalIntlData::collatorOptionfulOptions");
+    TraceEdge(trc, &collatorOptionful_[i].formatter_, "GlobalIntlData::collatorOptionfulFormatter");
+    TraceEdge(trc, &numberFormatOptionful_[i].locale_, "GlobalIntlData::numberFormatOptionfulLocale");
+    TraceEdge(trc, &numberFormatOptionful_[i].options_, "GlobalIntlData::numberFormatOptionfulOptions");
+    TraceEdge(trc, &numberFormatOptionful_[i].formatter_, "GlobalIntlData::numberFormatOptionfulFormatter");
+    TraceEdge(trc, &dateTimeFormatOptionfulAll_[i].locale_, "GlobalIntlData::dateTimeFormatOptionfulAllLocale");
+    TraceEdge(trc, &dateTimeFormatOptionfulAll_[i].options_, "GlobalIntlData::dateTimeFormatOptionfulAllOptions");
+    TraceEdge(trc, &dateTimeFormatOptionfulAll_[i].formatter_, "GlobalIntlData::dateTimeFormatOptionfulAllFormatter");
+    TraceEdge(trc, &dateTimeFormatOptionfulDate_[i].locale_, "GlobalIntlData::dateTimeFormatOptionfulDateLocale");
+    TraceEdge(trc, &dateTimeFormatOptionfulDate_[i].options_, "GlobalIntlData::dateTimeFormatOptionfulDateOptions");
+    TraceEdge(trc, &dateTimeFormatOptionfulDate_[i].formatter_, "GlobalIntlData::dateTimeFormatOptionfulDateFormatter");
+    TraceEdge(trc, &dateTimeFormatOptionfulTime_[i].locale_, "GlobalIntlData::dateTimeFormatOptionfulTimeLocale");
+    TraceEdge(trc, &dateTimeFormatOptionfulTime_[i].options_, "GlobalIntlData::dateTimeFormatOptionfulTimeOptions");
+    TraceEdge(trc, &dateTimeFormatOptionfulTime_[i].formatter_, "GlobalIntlData::dateTimeFormatOptionfulTimeFormatter");
+  }
 
   TraceEdge(trc, &fallbackSymbol_, "GlobalIntlData::fallbackSymbol_");
 }

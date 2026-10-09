@@ -4,6 +4,7 @@
 
 #include "builtin/JSON.h"
 
+#include "mozilla/Atomics.h"
 #include "mozilla/CheckedInt.h"
 #include "mozilla/Range.h"
 #include "mozilla/ScopeExit.h"
@@ -847,6 +848,35 @@ static const char* DescribeStringifyBailReason(BailReason whySlow) {
   }
 }
 
+namespace {
+// Waterfox benchmark variant (item 6): one increment per bailed top-level
+// stringify call, on the already-slow path. Gated on
+// javascript.options.json_bail_counters (default false).
+mozilla::Atomic<uint64_t> sStringifyBailCounts[size_t(BailReason::INTERRUPT) +
+                                                1];
+}  // namespace
+
+static void RecordStringifyBail(BailReason reason) {
+  if (MOZ_LIKELY(!JS::Prefs::json_bail_counters())) {
+    return;
+  }
+  sStringifyBailCounts[size_t(reason)]++;
+}
+
+size_t js::StringifyBailReasonCount() {
+  return size_t(BailReason::INTERRUPT) + 1;
+}
+
+const char* js::StringifyBailReasonName(size_t index) {
+  MOZ_ASSERT(index < StringifyBailReasonCount());
+  return DescribeStringifyBailReason(static_cast<BailReason>(index));
+}
+
+uint64_t js::StringifyBailCount(size_t index) {
+  MOZ_ASSERT(index < StringifyBailReasonCount());
+  return sStringifyBailCounts[index];
+}
+
 // Iterator over all the dense elements of an object. Used
 // for both Arrays and non-Arrays.
 class DenseElementsIteratorForJSON {
@@ -1667,6 +1697,11 @@ bool js::Stringify(JSContext* cx, MutableHandleValue vp, JSObject* replacer_,
   }
 
   // Slow, general path.
+  // Waterfox benchmark variant (item 6): count the bail reason once per
+  // bailed call, before paying for the slow path.
+  if (whySlow != BailReason::NO_REASON) {
+    RecordStringifyBail(whySlow);
+  }
 
   StringifyContext scx(cx, sb, gap, replacer, propertyList,
                        stringifyBehavior == StringifyBehavior::RestrictedSafe);

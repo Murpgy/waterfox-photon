@@ -4,6 +4,21 @@ Engine-agnostic JS microbenchmarks + a Python harness with Talos-style
 statistics. Runs on `node` today; runs on the built `js` shell unmodified
 (`runner.py` auto-detects `obj-*/dist/bin/js` with `--engine auto`).
 
+## Implemented variants (all default-off = generic execution)
+
+| Item | Flag / pref | Code |
+|---|---|---|
+| 1 Intl optionful memo | `javascript.options.intl_optionful_cache` (startup) | `js/src/builtin/intl/GlobalIntlData.{h,cpp}`, `Collator/NumberFormat/DateTimeFormat.{h,cpp}` |
+| 2 PGO aarch64-windows | `wfx_pgo=cross-or-native` | `waterfox/build/mozconfig-aarch64-pc-windows-msvc` |
+| 3 Pref baseline lock | `audit-prefs.py` (25 checks) | fails CI/local on drift |
+| 5 Interpreter predict | always-on micro-opt (no flag; semantically neutral) | `js/src/vm/Interpreter.cpp` PREDICT_NEXT_OP |
+| 5b NoGC GetProp attempt | DEFERRED pending js-shell validation (rooting safety needs jit-test) | — |
+| 6 JSON bail counters | `javascript.options.json_bail_counters` (startup) + `getStringifyBailCounts()` shell fn | `js/src/builtin/JSON.{h,cpp}`, `js/src/shell/js.cpp` |
+| 7 MOZ_COLD aborts | always-on layout hint | `js/src/jit/WarpOracle.cpp`, `js/src/jit/Ion.cpp` |
+
+Correctness tests: `js/src/jit-test/tests/JSON/stringify-bail-counts.js`,
+`js/src/jit-test/tests/intl/optionful-memo-correctness.js`.
+
 ## Matrix
 
 | # | Item | Bench file(s) | Modes (BENCH_MODE / --mode=) | Metric | Compares |
@@ -43,6 +58,19 @@ python3 tools/waterfox-bench/runner.py compare --a /tmp/base.json --b /tmp/intl-
 # js shell once built (auto-detect + nursery sweep example)
 python3 tools/waterfox-bench/runner.py run --engine auto --runs 11 --out /tmp/js.json bench-gc-nursery
 obj-*/dist/bin/js --nursery-size=16 tools/waterfox-bench/benches/bench-gc-nursery.js
+
+# nursery sweep across sizes (item 4; JS_ARGS passthrough)
+for sz in 16 64 128; do
+  JS_ARGS="--nursery-size=$sz" python3 tools/waterfox-bench/runner.py run \
+    --engine /path/to/js --runs 11 --out /tmp/nursery-$sz.json bench-gc-nursery
+done
+
+# JIT-tier guard (item 3/5): interpreter-only vs full tiers on the js shell
+JS_ARGS="--no-blinterp --no-baseline --no-ion" python3 tools/waterfox-bench/runner.py run \
+  --engine /path/to/js --runs 7 --out /tmp/interp.json bench-dispatch
+
+# pref audit (item 3)
+python3 tools/waterfox-bench/audit-prefs.py --root .
 ```
 
 ## Interpreting before implementing (rule)

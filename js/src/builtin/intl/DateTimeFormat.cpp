@@ -43,12 +43,14 @@
 #include "js/friend/ErrorMessages.h"  // js::GetErrorMessage, JSMSG_*
 #include "js/GCAPI.h"
 #include "js/PropertyAndElement.h"  // JS_DefineFunctions, JS_DefineProperties
+#include "js/Prefs.h"
 #include "js/PropertySpec.h"
 #include "js/StableStringChars.h"
 #include "js/Wrapper.h"
 #include "vm/DateTime.h"
 #include "vm/GlobalObject.h"
 #include "vm/JSContext.h"
+#include "vm/JSObject.h"
 #include "vm/PlainObject.h"  // js::PlainObject
 #include "vm/Runtime.h"
 #include "vm/Warnings.h"
@@ -1017,8 +1019,53 @@ DateTimeFormatObject* js::intl::GetOrCreateDateTimeFormat(
                                                                     locale);
   }
 
+  // Try the option-ful memo when the options object is present.
+  if ((locales.isUndefined() || locales.isString()) && options.isObject()) {
+    return GetOrCreateDateTimeFormatWithOptions(cx, locales, options, kind);
+  }
+
   // Create a new Intl.DateTimeFormat instance.
   return CreateDateTimeFormat(cx, locales, options, nullptr, kind);
+}
+
+// Waterfox benchmark variant (item 1): memoize option-ful construction when
+// the options object is frozen. Gated on
+// javascript.options.intl_optionful_cache (default false).
+DateTimeFormatObject* js::intl::GetOrCreateDateTimeFormatWithOptions(
+    JSContext* cx, Handle<Value> locales, Handle<Value> options,
+    DateTimeFormatKind kind) {
+  if (!JS::Prefs::intl_optionful_cache()) {
+    return CreateDateTimeFormat(cx, locales, options, nullptr, kind);
+  }
+  Rooted<JSLinearString*> locale(cx);
+  if (locales.isString()) {
+    locale = locales.toString()->ensureLinear(cx);
+    if (!locale) {
+      return nullptr;
+    }
+  }
+  Rooted<JSObject*> opts(cx, &options.toObject());
+  bool frozen = false;
+  if (!TestIntegrityLevel(cx, opts, IntegrityLevel::Frozen, &frozen)) {
+    return nullptr;
+  }
+  auto& data = cx->global()->globalIntlData();
+  if (frozen) {
+    if (DateTimeFormatObject* hit =
+            data.lookupOptionfulDateTimeFormat(cx, kind, locale, opts)) {
+      return hit;
+    }
+  }
+  DateTimeFormatObject* created =
+      CreateDateTimeFormat(cx, locales, options, nullptr, kind);
+  if (!created) {
+    return nullptr;
+  }
+  if (frozen) {
+    Rooted<JSObject*> createdObj(cx, created);
+    data.storeOptionfulDateTimeFormat(kind, locale, opts, createdObj);
+  }
+  return created;
 }
 
 void js::intl::DateTimeFormatObject::finalize(JS::GCContext* gcx,

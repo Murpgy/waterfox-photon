@@ -22,11 +22,13 @@
 #include "builtin/intl/ParameterNegotiation.h"
 #include "builtin/intl/SharedIntlData.h"
 #include "gc/GCContext.h"
+#include "js/Prefs.h"
 #include "js/PropertySpec.h"
 #include "js/StableStringChars.h"
 #include "js/TypeDecls.h"
 #include "vm/GlobalObject.h"
 #include "vm/JSContext.h"
+#include "vm/JSObject.h"
 #include "vm/PlainObject.h"  // js::PlainObject
 #include "vm/Runtime.h"
 #include "vm/StringType.h"
@@ -402,8 +404,50 @@ CollatorObject* js::intl::GetOrCreateCollator(JSContext* cx,
     return cx->global()->globalIntlData().getOrCreateCollator(cx, locale);
   }
 
+  // Try the option-ful memo when the options object is present.
+  if ((locales.isUndefined() || locales.isString()) && options.isObject()) {
+    return GetOrCreateCollatorWithOptions(cx, locales, options);
+  }
+
   // Create a new Intl.Collator instance.
   return CreateCollator(cx, locales, options);
+}
+
+// Waterfox benchmark variant (item 1): memoize option-ful construction when
+// the options object is frozen. Gated on
+// javascript.options.intl_optionful_cache (default false).
+CollatorObject* js::intl::GetOrCreateCollatorWithOptions(
+    JSContext* cx, Handle<Value> locales, Handle<Value> options) {
+  if (!JS::Prefs::intl_optionful_cache()) {
+    return CreateCollator(cx, locales, options);
+  }
+  Rooted<JSLinearString*> locale(cx);
+  if (locales.isString()) {
+    locale = locales.toString()->ensureLinear(cx);
+    if (!locale) {
+      return nullptr;
+    }
+  }
+  Rooted<JSObject*> opts(cx, &options.toObject());
+  bool frozen = false;
+  if (!TestIntegrityLevel(cx, opts, IntegrityLevel::Frozen, &frozen)) {
+    return nullptr;
+  }
+  auto& data = cx->global()->globalIntlData();
+  if (frozen) {
+    if (CollatorObject* hit = data.lookupOptionfulCollator(cx, locale, opts)) {
+      return hit;
+    }
+  }
+  CollatorObject* created = CreateCollator(cx, locales, options);
+  if (!created) {
+    return nullptr;
+  }
+  if (frozen) {
+    Rooted<JSObject*> createdObj(cx, created);
+    data.storeOptionfulCollator(locale, opts, createdObj);
+  }
+  return created;
 }
 
 void js::intl::CollatorObject::finalize(JS::GCContext* gcx, JSObject* obj) {

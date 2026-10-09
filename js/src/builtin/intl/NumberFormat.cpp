@@ -37,6 +37,7 @@
 #include "builtin/Number.h"
 #include "gc/GCContext.h"
 #include "js/CharacterEncoding.h"
+#include "js/Prefs.h"
 #include "js/PropertySpec.h"
 #include "js/RootingAPI.h"
 #include "js/TypeDecls.h"
@@ -44,6 +45,7 @@
 #include "vm/BigIntType.h"
 #include "vm/GlobalObject.h"
 #include "vm/JSContext.h"
+#include "vm/JSObject.h"
 #include "vm/PlainObject.h"  // js::PlainObject
 #include "vm/StringType.h"
 
@@ -1373,8 +1375,53 @@ NumberFormatObject* js::intl::GetOrCreateNumberFormat(JSContext* cx,
     return cx->global()->globalIntlData().getOrCreateNumberFormat(cx, locale);
   }
 
+  // Try the option-ful memo when the options object is present. The helper
+  // returns through the generic path unless the benchmark pref is on.
+  if ((locales.isUndefined() || locales.isString()) && options.isObject()) {
+    return GetOrCreateNumberFormatWithOptions(cx, locales, options);
+  }
+
   // Create a new Intl.NumberFormat instance.
   return CreateNumberFormat(cx, locales, options);
+}
+
+// Waterfox benchmark variant (item 1): memoize option-ful construction when
+// the options object is frozen. Identity-keying is sound because a frozen
+// object cannot be mutated. Gated on javascript.options.intl_optionful_cache
+// (default false = generic execution).
+NumberFormatObject* js::intl::GetOrCreateNumberFormatWithOptions(
+    JSContext* cx, Handle<Value> locales, Handle<Value> options) {
+  if (!JS::Prefs::intl_optionful_cache()) {
+    return CreateNumberFormat(cx, locales, options);
+  }
+  Rooted<JSLinearString*> locale(cx);
+  if (locales.isString()) {
+    locale = locales.toString()->ensureLinear(cx);
+    if (!locale) {
+      return nullptr;
+    }
+  }
+  Rooted<JSObject*> opts(cx, &options.toObject());
+  bool frozen = false;
+  if (!TestIntegrityLevel(cx, opts, IntegrityLevel::Frozen, &frozen)) {
+    return nullptr;
+  }
+  auto& data = cx->global()->globalIntlData();
+  if (frozen) {
+    if (NumberFormatObject* hit =
+            data.lookupOptionfulNumberFormat(cx, locale, opts)) {
+      return hit;
+    }
+  }
+  NumberFormatObject* created = CreateNumberFormat(cx, locales, options);
+  if (!created) {
+    return nullptr;
+  }
+  if (frozen) {
+    Rooted<JSObject*> createdObj(cx, created);
+    data.storeOptionfulNumberFormat(locale, opts, createdObj);
+  }
+  return created;
 }
 
 void js::intl::NumberFormatObject::finalize(JS::GCContext* gcx, JSObject* obj) {

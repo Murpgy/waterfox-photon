@@ -2598,7 +2598,7 @@ static void ClearIonScriptAfterInvalidation(JSContext* cx, JSScript* script,
   }
 }
 
-void jit::Invalidate(JSContext* cx, const IonScriptKeyVector& invalid,
+MOZ_COLD void jit::Invalidate(JSContext* cx, const IonScriptKeyVector& invalid,
                      bool resetUses, bool cancelOffThread) {
   JitSpew(JitSpew_IonInvalidate, "Start invalidation.");
 
@@ -2690,7 +2690,7 @@ void jit::IonScript::invalidate(JSContext* cx, JSScript* script, bool resetUses,
   Invalidate(cx, list, resetUses, true);
 }
 
-void jit::Invalidate(JSContext* cx, JSScript* script, bool resetUses,
+MOZ_COLD void jit::Invalidate(JSContext* cx, JSScript* script, bool resetUses,
                      bool cancelOffThread) {
   MOZ_ASSERT(script->hasIonScript());
 
@@ -2739,7 +2739,7 @@ void jit::FinishInvalidation(JS::GCContext* gcx, JSScript* script) {
   }
 }
 
-void jit::ForbidCompilation(JSContext* cx, JSScript* script) {
+MOZ_COLD void jit::ForbidCompilation(JSContext* cx, JSScript* script) {
   JitSpew(JitSpew_IonAbort, "Disabling Ion compilation of script %s:%u:%u",
           script->filename(), script->lineno(),
           script->column().oneOriginValue());

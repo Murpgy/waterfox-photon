@@ -163,6 +163,15 @@ enum class NumberFormatUnit {
     JS::Handle<JS::Value> options);
 
 /**
+ * Waterfox benchmark variant (item 1): option-ful construction memoized when
+ * the options object is frozen. Falls back to CreateNumberFormat unless the
+ * javascript.options.intl_optionful_cache pref is on.
+ */
+[[nodiscard]] extern NumberFormatObject* GetOrCreateNumberFormatWithOptions(
+    JSContext* cx, JS::Handle<JS::Value> locales,
+    JS::Handle<JS::Value> options);
+
+/**
  * Returns a string representing the number x according to the effective locale
  * and the formatting options of the given NumberFormat.
  */

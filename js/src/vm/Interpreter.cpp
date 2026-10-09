@@ -1820,6 +1820,25 @@ bool MOZ_NEVER_INLINE JS_HAZ_JSNATIVE_CALLER js::Interpret(JSContext* cx,
 #define END_CASE(OP) ADVANCE_AND_DISPATCH(JSOpLength_##OP);
 
   /*
+   * Static branch prediction for hot opcode pairs (Waterfox benchmark
+   * variant; mirrors PortableBaselineInterpret.cpp PREDICT_NEXT). Peeks at
+   * the next opcode after advancing past the current one and jumps directly
+   * to its handler, skipping the computed-goto table load. Semantically
+   * identical to ADVANCE_AND_DISPATCH: same pc advance, same sanity checks,
+   * and the opMask comparison keeps it inert when interrupts are enabled.
+   * Miss cost is one predictable compare; place only on profiled-hot pairs.
+   */
+#define PREDICT_NEXT_OP(OP, LEN)                                     \
+  JS_BEGIN_MACRO                                                     \
+    if (((*((REGS.pc) + (LEN))) | activation.opMask()) ==            \
+        uint8_t(JSOp::OP)) {                                         \
+      REGS.pc += (LEN);                                              \
+      SANITY_CHECKS();                                               \
+      goto label_##OP;                                               \
+    }                                                                \
+  JS_END_MACRO
+
+  /*
    * Prepare to call a user-supplied branch handler, and abort the script
    * if it returns false.
    */
@@ -2932,10 +2951,13 @@ bool MOZ_NEVER_INLINE JS_HAZ_JSNATIVE_CALLER js::Interpret(JSContext* cx,
       ReservedRooted<Value> lval(&rootValue0, REGS.sp[-1]);
       MutableHandleValue res = REGS.stackHandleAt(-1);
       ReservedRooted<PropertyName*> name(&rootName0, script->getName(REGS.pc));
-      if (!GetProperty(cx, lval, name, res)) {
+      if (MOZ_LIKELY(GetProperty(cx, lval, name, res))) {
+        cx->debugOnlyCheck(res);
+      } else {
         goto error;
       }
-      cx->debugOnlyCheck(res);
+      PREDICT_NEXT_OP(Call, JSOpLength_GetProp);
+      PREDICT_NEXT_OP(GetProp, JSOpLength_GetProp);
     }
     END_CASE(GetProp)
 
@@ -3072,6 +3094,7 @@ bool MOZ_NEVER_INLINE JS_HAZ_JSNATIVE_CALLER js::Interpret(JSContext* cx,
       }
 
       REGS.sp--;
+      PREDICT_NEXT_OP(Call, JSOpLength_GetElem);
     }
     END_CASE(GetElem)
 

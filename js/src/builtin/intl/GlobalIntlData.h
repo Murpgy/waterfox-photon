@@ -131,6 +131,32 @@ class GlobalIntlData {
    */
   GCPtr<JS::Symbol*> fallbackSymbol_;
 
+  /**
+   * Fixed-size memo for formatters created with an explicit options object
+   * (Waterfox benchmark variant, item 1). Entries are keyed by (locale,
+   * options-object identity) and are only stored when the options object is
+   * frozen, which makes identity-keying sound: a frozen object cannot be
+   * mutated, so a cached formatter stays valid for that key. Gated on the
+   * javascript.options.intl_optionful_cache pref (default false = generic
+   * execution). Round-robin eviction; cleared whenever the realm locale (or
+   * time zone, for date-time formatters) changes.
+   */
+  struct OptionfulEntry {
+    GCPtr<JSLinearString*> locale_;
+    GCPtr<JSObject*> options_;
+    GCPtr<JSObject*> formatter_;
+  };
+  static constexpr size_t OptionfulCacheSize = 4;
+
+  OptionfulEntry collatorOptionful_[OptionfulCacheSize];
+  size_t collatorOptionfulNext_ = 0;
+  OptionfulEntry numberFormatOptionful_[OptionfulCacheSize];
+  size_t numberFormatOptionfulNext_ = 0;
+  OptionfulEntry dateTimeFormatOptionfulAll_[OptionfulCacheSize];
+  OptionfulEntry dateTimeFormatOptionfulDate_[OptionfulCacheSize];
+  OptionfulEntry dateTimeFormatOptionfulTime_[OptionfulCacheSize];
+  size_t dateTimeFormatOptionfulNext_ = 0;
+
  public:
   /**
    * Returns the BCP 47 language tag for the global's current locale.
@@ -185,7 +211,44 @@ class GlobalIntlData {
    */
   JS::Symbol* fallbackSymbol(JSContext* cx);
 
+  /**
+   * Look up a memoised option-ful formatter. Returns nullptr on miss.
+   * |options| must be frozen (checked by the caller) so identity comparison
+   * is sound. Each method consults the javascript.options.intl_optionful_cache
+   * pref first and returns nullptr immediately when it is off.
+   */
+  CollatorObject* lookupOptionfulCollator(JSContext* cx,
+                                          JS::Handle<JSLinearString*> locale,
+                                          JS::Handle<JSObject*> options);
+  void storeOptionfulCollator(JS::Handle<JSLinearString*> locale,
+                              JS::Handle<JSObject*> options,
+                              JS::Handle<JSObject*> formatter);
+  NumberFormatObject* lookupOptionfulNumberFormat(
+      JSContext* cx, JS::Handle<JSLinearString*> locale,
+      JS::Handle<JSObject*> options);
+  void storeOptionfulNumberFormat(JS::Handle<JSLinearString*> locale,
+                                  JS::Handle<JSObject*> options,
+                                  JS::Handle<JSObject*> formatter);
+  DateTimeFormatObject* lookupOptionfulDateTimeFormat(
+      JSContext* cx, DateTimeFormatKind kind,
+      JS::Handle<JSLinearString*> locale, JS::Handle<JSObject*> options);
+  void storeOptionfulDateTimeFormat(DateTimeFormatKind kind,
+                                    JS::Handle<JSLinearString*> locale,
+                                    JS::Handle<JSObject*> options,
+                                    JS::Handle<JSObject*> formatter);
+
   void trace(JSTracer* trc);
+
+ private:
+  OptionfulEntry* dateTimeFormatOptionfulEntries(DateTimeFormatKind kind);
+
+  JSObject* lookupOptionful(OptionfulEntry* entries,
+                            JS::Handle<JSLinearString*> locale,
+                            JS::Handle<JSObject*> options);
+  void storeOptionful(OptionfulEntry* entries, size_t* next,
+                      JS::Handle<JSLinearString*> locale,
+                      JS::Handle<JSObject*> options,
+                      JS::Handle<JSObject*> formatter);
 
  private:
   bool ensureRealmLocale(JSContext* cx);

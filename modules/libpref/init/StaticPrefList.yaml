@@ -9672,6 +9672,24 @@
   value: true
   mirror: always
 
+# Waterfox benchmark variant (item 1): memoize Intl formatters constructed
+# with an explicit frozen options object. Default false = generic execution.
+# Read once at startup; restart to toggle between benchmark variants.
+- name: javascript.options.intl_optionful_cache
+  type: bool
+  value: false
+  mirror: always
+  set_spidermonkey_pref: startup
+
+# Waterfox benchmark variant (item 6): per-reason counters for fast-stringify
+# bailouts, shell-visible via getStringifyBailCounts(). Default false =
+# generic execution. Read once at startup; restart to toggle.
+- name: javascript.options.json_bail_counters
+  type: bool
+  value: false
+  mirror: always
+  set_spidermonkey_pref: startup
+
 # The amount of time we wait between a request to GC (due to leaving a page) and doing the actual GC, in ms.
 - name: javascript.options.gc_delay
   type: uint32_t

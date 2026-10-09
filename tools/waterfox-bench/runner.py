@@ -46,7 +46,8 @@ def find_js_shell():
 
 def run_once(engine, bench_path, extra_args):
     """Run one bench file once. Returns (elapsed_ms, rss_kb)."""
-    cmd = [engine, bench_path] + extra_args
+    js_args = os.environ.get("JS_ARGS", "").split()
+    cmd = [engine] + js_args + [bench_path] + extra_args
     # /usr/bin/time -v gives max RSS portably on Linux; fall back to plain run.
     time_bin = "/usr/bin/time"
     use_time = os.path.exists(time_bin + "") or os.path.exists("/usr/bin/time")

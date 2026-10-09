@@ -240,6 +240,15 @@ enum class DateTimeFormatKind {
     DateTimeFormatKind kind);
 
 /**
+ * Waterfox benchmark variant (item 1): option-ful construction memoized when
+ * the options object is frozen. Falls back to CreateDateTimeFormat unless the
+ * javascript.options.intl_optionful_cache pref is on.
+ */
+[[nodiscard]] extern DateTimeFormatObject* GetOrCreateDateTimeFormatWithOptions(
+    JSContext* cx, JS::Handle<JS::Value> locales, JS::Handle<JS::Value> options,
+    DateTimeFormatKind kind);
+
+/**
  * Returns a String value representing |millis| (which must be a valid time
  * value) according to the effective locale and the formatting options of the
  * given DateTimeFormat.

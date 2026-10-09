@@ -126,6 +126,15 @@ class CollatorObject : public NativeObject {
     JS::Handle<JS::Value> options);
 
 /**
+ * Waterfox benchmark variant (item 1): option-ful construction memoized when
+ * the options object is frozen. Falls back to CreateCollator unless the
+ * javascript.options.intl_optionful_cache pref is on.
+ */
+[[nodiscard]] extern CollatorObject* GetOrCreateCollatorWithOptions(
+    JSContext* cx, JS::Handle<JS::Value> locales,
+    JS::Handle<JS::Value> options);
+
+/**
  * Compares x and y, and returns a number less than 0 if x < y, 0 if x = y, or a
  * number greater than 0 if x > y according to the sort order for the locale and
  * collation options of the given Collator.

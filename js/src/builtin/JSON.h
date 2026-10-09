@@ -51,6 +51,17 @@ extern bool Stringify(JSContext* cx, js::MutableHandleValue vp,
                       JSObject* replacer, const Value& space, StringBuilder& sb,
                       StringifyBehavior stringifyBehavior);
 
+/**
+ * Waterfox benchmark variant (item 6): per-reason counters for fast-stringify
+ * bailouts. Counting is gated on javascript.options.json_bail_counters
+ * (default false = generic execution, zero overhead beyond one predictable
+ * branch on the already-slow path). Shell-visible via
+ * getStringifyBailCounts().
+ */
+extern size_t StringifyBailReasonCount();
+extern const char* StringifyBailReasonName(size_t index);
+extern uint64_t StringifyBailCount(size_t index);
+
 template <typename CharT>
 extern bool ParseJSONWithReviver(JSContext* cx,
                                  const mozilla::Range<const CharT> chars,

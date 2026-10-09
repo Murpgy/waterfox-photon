@@ -5,6 +5,6 @@ wfx_lto_mode=cross
 wfx_optimize="-clang:-O3 -w"
 wfx_rustflags=
 wfx_rustc_bootstrap=
-wfx_pgo=
+wfx_pgo=cross-or-native
 
 . "$topsrcdir/waterfox/build/mozconfig.common"
