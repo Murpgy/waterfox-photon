@@ -9,10 +9,10 @@
 @media -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic") {
   @media -moz-pref("userChrome.photon-classic.panel.enabled", true) {
     :root {
-      --panel-subview-body-padding-block: 4px;
-      --panel-separator-padding-vertical: 4px;
-      --panel-separator-padding-horizontal: 4px;
-      --arrowpanel-menuitem-padding: 2px;
+      --panel-subview-body-padding-block: 4px !important;
+      --panel-separator-padding-vertical: 4px !important;
+      --panel-separator-padding-horizontal: 4px !important;
+      --arrowpanel-menuitem-padding: 2px !important;
     }
 
     panelmultiview .subviewbutton,

@@ -125,7 +125,7 @@ add_task(async function test_photon_classic_sheets_packaged() {
     ],
     [
       "chrome://browser/skin/photon-classic/chrome/urlbar.css",
-      "#urlbar-background",
+      ".urlbar-background",
     ],
     [
       "chrome://browser/skin/photon-classic/chrome/panelUI.css",
@@ -147,10 +147,16 @@ add_task(async function test_photon_classic_sheets_packaged() {
 add_task(function test_photon_classic_live_tokens() {
   reset();
   WaterfoxBrowserStyle.setStyle("photon-classic");
+  is(rootVar("--tab-border-radius"), "0px", "photon-classic uses square tabs");
   is(
-    rootVar("--tab-block-margin"),
-    "0px",
-    "photon-classic zeroes the tab block margin"
+    rootVar("--toolbarbutton-padding-inner"),
+    "8px",
+    "photon-classic uses dense Photon button padding"
+  );
+  is(
+    rootVar("--panel-subview-body-padding-block"),
+    "4px",
+    "photon-classic uses dense Photon menu padding"
   );
   is(rootVar("--tab-border-radius"), "0px", "photon-classic uses square tabs");
 

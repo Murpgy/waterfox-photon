@@ -95,29 +95,66 @@ jobs:
             waterfox/browser/components/onboarding/test/browser/browser_waterfox_onboarding_actions.js
 
   optimized-build:
-    name: Optimized build (ThinLTO, Linux x64)
-    # Manual dispatch only: multi-hour link on hosted runners. No signing,
-    # no release channel, no tests in the binary; the artifact is an
-    # unsigned dogfood build for validating the theme at full optimization.
+    name: Optimized build (${{ matrix.name }})
+    # Manual dispatch only: multi-hour builds on hosted runners. No signing,
+    # no release channel, no tests in the binary; the artifacts are unsigned
+    # dogfood builds for validating the theme at full optimization.
+    # Platforms build in parallel (no needs: between them), so wall-clock is
+    # the slower platform, not the sum. Plain --enable-lto (thin, C++ only)
+    # on both: upstream's own validated setting per platform. Cross-language
+    # LTO is deliberately avoided -- it needs the exact upstream trio
+    # (wfx_lto_mode=cross + wfx_rustc_bootstrap=1 + nightly -Z rustflags)
+    # and fails the libxul link with ld.lld "Invalid record" otherwise.
     if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux x64
+            artifact: waterfox-opt-build-linux-x64
+            apt_packages: xvfb zstd
+            rust_target: ""
+            build_command: xvfb-run -a --server-args="-screen 0 1280x1024x24" ./mach build
+          - name: Windows x64
+            artifact: waterfox-opt-build-windows-x64
+            apt_packages: msitools zstd
+            rust_target: x86_64-pc-windows-msvc
+            build_command: ./mach build
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      - name: Optimized mozconfig (dev base, cross-LTO, -O3, no tests)
+      - name: Optimized mozconfig
         shell: bash
         run: |
-          cat > .mozconfig <<'EOF'
+          if [[ "${{ matrix.name }}" == "Windows x64" ]]; then
+            cat > .mozconfig <<'EOF'
+          wfx_target=x86_64-pc-windows-msvc
+          wfx_cross_build=1
+          . "$topsrcdir/waterfox/build/mozconfig.common"
+          ac_add_options --disable-tests
+          ac_add_options --enable-lto
+          ac_add_options --enable-optimize="-clang:-march=x86-64-v2 -clang:-mtune=haswell -clang:-O3 -w"
+          EOF
+          else
+            cat > .mozconfig <<'EOF'
           wfx_dev=1
           . "$topsrcdir/waterfox/build/mozconfig.common"
           ac_add_options --disable-tests
-          ac_add_options --enable-lto=cross
+          ac_add_options --enable-lto
           ac_add_options --enable-optimize="-march=x86-64-v2 -mtune=haswell -O3 -w"
           EOF
+          fi
+
+      - name: Install build packages
+        shell: bash
+        run: |
+          sudo apt update
+          sudo apt install -y ${{ matrix.apt_packages }}
 
       - name: Bootstrap build dependencies
         shell: bash
@@ -127,9 +164,14 @@ jobs:
         shell: bash
         run: scripts/fetch-clang-22.sh
 
+      - name: Add Windows Rust target
+        if: ${{ matrix.rust_target != '' }}
+        shell: bash
+        run: rustup target add --toolchain "1.98.1" "${{ matrix.rust_target }}"
+
       - name: Optimized build
         shell: bash
-        run: xvfb-run -a --server-args="-screen 0 1280x1024x24" ./mach build
+        run: ${{ matrix.build_command }}
 
       - name: Package
         shell: bash
@@ -137,10 +179,12 @@ jobs:
 
       - name: Bundle unsigned build
         shell: bash
-        run: tar -C "obj-$(uname -s)-$(uname -m)/dist" -cf waterfox-opt-build.tar waterfox
+        run: |
+          objdir="$(ls -d obj-* | head -n 1)"
+          tar -C "$objdir/dist" -cf waterfox-opt-build.tar waterfox
 
       - name: Upload unsigned build
         uses: actions/upload-artifact@v4
         with:
-          name: waterfox-opt-build
+          name: ${{ matrix.artifact }}
           path: waterfox-opt-build.tar

@@ -8,12 +8,12 @@
 @media -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic") {
   @media -moz-pref("userChrome.photon-classic.urlbar.enabled", true) {
     :root {
-      --toolbar-field-border-color: hsla(240, 5%, 5%, 0.25);
-      --toolbar-field-focus-border-color: -moz-accent-color;
-      --urlbar-min-height: 30px;
-      --urlbar-background-background-color: Field;
-      --urlbar-background-border: 1px solid var(--toolbar-field-border-color);
-      --urlbar-background-border-radius: var(--border-radius-xsmall);
+      --toolbar-field-border-color: hsla(240, 5%, 5%, 0.25) !important;
+      --toolbar-field-focus-border-color: -moz-accent-color !important;
+      --urlbar-min-height: 30px !important;
+      --urlbar-background-background-color: Field !important;
+      --urlbar-background-border: 1px solid var(--toolbar-field-border-color) !important;
+      --urlbar-background-border-radius: var(--border-radius-xsmall) !important;
     }
 
     #urlbar-container,
@@ -39,11 +39,11 @@
 
     @media -moz-pref("userChrome.photon-classic.urlbar.no-breakout", true) {
       :root {
-        --urlbar-background-box-shadow-breakout: none;
-        --urlbar-background-box-shadow-breakout-compact: none;
-        --urlbar-margin-block-start-breakout: 0px;
-        --urlbar-background-inset-breakout: 0;
-        --urlbar-background-inset-breakout-compact: 0;
+        --urlbar-background-box-shadow-breakout: none !important;
+        --urlbar-background-box-shadow-breakout-compact: none !important;
+        --urlbar-margin-block-start-breakout: 0px !important;
+        --urlbar-background-inset-breakout: 0 !important;
+        --urlbar-background-inset-breakout-compact: 0 !important;
       }
 
       .urlbar[breakout-extend] > .urlbar-background {
