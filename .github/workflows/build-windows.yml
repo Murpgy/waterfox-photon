@@ -59,16 +59,17 @@ jobs:
           EOF
           echo 'mk_add_options MOZ_MAKE_FLAGS="-j1"' >> .mozconfig
 
-      - name: Provision emergency swap
+      - name: Provision emergency swap (24G)
         shell: bash
         run: |
           sudo swapoff -a || true
           sudo rm -f /swapfile
-          (sudo fallocate -l 8G /swapfile || sudo dd if=/dev/zero of=/swapfile bs=1M count=8192 status=none)
+          (sudo fallocate -l 24G /swapfile || sudo dd if=/dev/zero of=/swapfile bs=1M count=24576 status=none)
           sudo chmod 600 /swapfile
           sudo mkswap /swapfile
           sudo swapon /swapfile
           free -h
+          df -h / /tmp | head -n 5
 
       - name: Install build packages
         shell: bash
