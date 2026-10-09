@@ -2,10 +2,12 @@
  * Keeps browser.nova.enabled == true and re-anchors tab metrics to the
  * Firefox 88 Photon values instead of forking upstream token layers.
  * Declarations need !important: this sheet loads as a USER_SHEET, where
- * normal declarations lose to author-origin upstream rules. */
+ * normal declarations lose to author-origin upstream rules. The
+ * :root#main-window selector out-specifies upstream layered :root and
+ * :root:not(...) token rules regardless of origin/layer ordering. */
 
 @media -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic") {
-  :root {
+  :root#main-window {
     --tab-min-height: 33px !important;
     --tab-inline-padding: 9px !important;
     --tab-block-margin: 0px !important;
@@ -16,11 +18,11 @@
     --tab-line-color: currentColor !important;
   }
 
-  :root[uidensity="compact"] {
+  :root#main-window[uidensity="compact"] {
     --tab-min-height: 29px !important;
   }
 
-  :root[uidensity="touch"] {
+  :root#main-window[uidensity="touch"] {
     --tab-min-height: 41px !important;
   }
 

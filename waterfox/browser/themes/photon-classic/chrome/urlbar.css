@@ -7,7 +7,7 @@
 
 @media -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic") {
   @media -moz-pref("userChrome.photon-classic.urlbar.enabled", true) {
-    :root {
+    :root#main-window {
       --toolbar-field-border-color: hsla(240, 5%, 5%, 0.25) !important;
       --toolbar-field-focus-border-color: -moz-accent-color !important;
       --urlbar-min-height: 30px !important;
@@ -38,7 +38,7 @@
     }
 
     @media -moz-pref("userChrome.photon-classic.urlbar.no-breakout", true) {
-      :root {
+      :root#main-window {
         --urlbar-background-box-shadow-breakout: none !important;
         --urlbar-background-box-shadow-breakout-compact: none !important;
         --urlbar-margin-block-start-breakout: 0px !important;

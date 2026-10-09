@@ -146,7 +146,20 @@ add_task(async function test_photon_classic_sheets_packaged() {
 
 add_task(function test_photon_classic_live_tokens() {
   reset();
+  // Pin normal density: Waterfox ships compact by default, whose values
+  // coincide with upstream compact defaults and would false-pass.
+  Services.prefs.setIntPref(DENSITY_PREF, 0);
   WaterfoxBrowserStyle.setStyle("photon-classic");
+  is(
+    rootVar("--tab-min-height"),
+    "33px",
+    "photon-classic sets the Photon tab height (upstream Nova is 32px)"
+  );
+  is(
+    rootVar("--tab-block-margin"),
+    "0px",
+    "photon-classic zeroes the tab block margin"
+  );
   is(rootVar("--tab-border-radius"), "0px", "photon-classic uses square tabs");
   is(
     rootVar("--toolbarbutton-padding-inner"),
@@ -158,7 +171,17 @@ add_task(function test_photon_classic_live_tokens() {
     "4px",
     "photon-classic uses dense Photon menu padding"
   );
-  is(rootVar("--tab-border-radius"), "0px", "photon-classic uses square tabs");
+  const tabBackground = document.querySelector(
+    ".tabbrowser-tab .tab-background"
+  );
+  ok(tabBackground, "tab background element exists for element-level check");
+  if (tabBackground) {
+    is(
+      getComputedStyle(tabBackground).borderRadius,
+      "0px",
+      "photon-classic renders square tab backgrounds"
+    );
+  }
 
   WaterfoxBrowserStyle.setStyle("nova");
   isnot(

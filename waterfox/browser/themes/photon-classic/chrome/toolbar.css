@@ -6,20 +6,20 @@
 
 @media -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic") {
   @media -moz-pref("userChrome.photon-classic.toolbar.enabled", true) {
-    :root {
+    :root#main-window {
       --toolbarbutton-padding-outer: 2px !important;
       --toolbarbutton-padding-inner: 8px !important;
       --toolbarbutton-border-radius: 2px !important;
       --bookmark-block-padding: 4px !important;
     }
 
-    :root[uidensity="compact"] {
+    :root#main-window[uidensity="compact"] {
       --toolbarbutton-padding-outer: 1px !important;
       --toolbarbutton-padding-inner: 6px !important;
       --bookmark-block-padding: 1px !important;
     }
 
-    :root[uidensity="touch"] {
+    :root#main-window[uidensity="touch"] {
       --toolbarbutton-padding-inner: 9px !important;
       --bookmark-block-padding: 7px !important;
     }

@@ -8,7 +8,7 @@
 
 @media -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic") {
   @media -moz-pref("userChrome.photon-classic.panel.enabled", true) {
-    :root {
+    :root#main-window {
       --panel-subview-body-padding-block: 4px !important;
       --panel-separator-padding-vertical: 4px !important;
       --panel-separator-padding-horizontal: 4px !important;
