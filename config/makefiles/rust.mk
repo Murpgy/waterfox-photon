@@ -370,6 +370,13 @@ $(HOST_RECIPES): RUSTFLAGS:=$(rustflags_override)
 ifndef DEVELOPER_OPTIONS
 $(TARGET_RECIPES) $(HOST_RECIPES): RUSTFLAGS += -C codegen-units=1
 endif
+# Waterfox validation builds on constrained runners can shard the giant
+# gkrust codegen unit via RUSTFLAGS_CODEGEN_UNITS_OVERRIDE (e.g. 16), which
+# trades a small amount of cross-crate optimization for a large peak-RSS
+# reduction. Unset = upstream behavior.
+ifdef RUSTFLAGS_CODEGEN_UNITS_OVERRIDE
+$(TARGET_RECIPES) $(HOST_RECIPES): RUSTFLAGS += -C codegen-units=$(RUSTFLAGS_CODEGEN_UNITS_OVERRIDE)
+endif
 
 # We use the + prefix to pass down the jobserver fds to cargo, but we
 # don't use the prefix when make -n is used, so that cargo doesn't run

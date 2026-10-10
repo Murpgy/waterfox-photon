@@ -47,7 +47,7 @@ jobs:
       - name: Install sccache
         uses: mozilla-actions/sccache-action@9e7fa8a12102821edf02ca5dbea1acd0f89a2696 # v0.0.10
 
-      - name: Optimized mozconfig (Windows cross, -O3, no LTO, -j2)
+      - name: Optimized mozconfig (Windows cross, -O3, no LTO, -j1)
         shell: bash
         run: |
           cat > .mozconfig <<'EOF'
@@ -58,13 +58,17 @@ jobs:
           ac_add_options --enable-optimize="-clang:-march=x86-64-v2 -clang:-mtune=haswell -clang:-O3 -w"
           EOF
           echo 'mk_add_options MOZ_MAKE_FLAGS="-j1"' >> .mozconfig
+          # Release builds pin -C codegen-units=1 (config/makefiles/rust.mk),
+          # which balloons the single gkrust codegen unit past 30Gi RSS on
+          # this target. Shard to 16 via env override (see rust.mk hunk).
+          echo 'mk_add_options "export RUSTFLAGS_CODEGEN_UNITS_OVERRIDE=16"' >> .mozconfig
 
-      - name: Provision emergency swap (24G)
+      - name: Provision emergency swap (64G)
         shell: bash
         run: |
           sudo swapoff -a || true
           sudo rm -f /swapfile
-          (sudo fallocate -l 24G /swapfile || sudo dd if=/dev/zero of=/swapfile bs=1M count=24576 status=none)
+          (sudo fallocate -l 64G /swapfile || sudo dd if=/dev/zero of=/swapfile bs=1M count=65536 status=none)
           sudo chmod 600 /swapfile
           sudo mkswap /swapfile
           sudo swapon /swapfile
