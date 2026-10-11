@@ -13,3 +13,4 @@ pref("userChrome.photon-classic.urlbar.enabled", true);
 pref("userChrome.photon-classic.urlbar.no-breakout", true);
 pref("userChrome.photon-classic.panel.enabled", true);
 pref("userChrome.photon-classic.panel.icons", true);
+pref("userChrome.photon-classic.menus.enabled", true);

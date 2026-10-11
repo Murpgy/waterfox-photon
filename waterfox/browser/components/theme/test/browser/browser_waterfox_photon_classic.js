@@ -25,6 +25,7 @@ const OVERLAY_GATES = [
   "userChrome.photon-classic.urlbar.no-breakout",
   "userChrome.photon-classic.panel.enabled",
   "userChrome.photon-classic.panel.icons",
+  "userChrome.photon-classic.menus.enabled",
 ];
 
 function reset() {
@@ -139,6 +140,7 @@ add_task(async function test_photon_classic_sheets_packaged() {
       "chrome://browser/skin/photon-classic/chrome/panelUI.css",
       ".subviewbutton",
     ],
+    ["chrome://browser/skin/photon-classic/chrome/menus.css", "menupopup"],
   ];
   for (const [url, marker] of sheets) {
     const response = await fetch(url);

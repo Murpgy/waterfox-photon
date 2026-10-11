@@ -17,6 +17,8 @@
 
     panelmultiview .subviewbutton,
     #appMenu-popup .subviewbutton {
+      /* menus.css tightens these to radius 0 + margin 0 when enabled;
+       * this 2px is the intermediate step with menus off. */
       border-radius: var(--border-radius-xsmall) !important;
       padding-block: var(--space-xxsmall) !important;
     }

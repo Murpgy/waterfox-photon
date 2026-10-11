@@ -330,6 +330,15 @@ const BROWSER_STYLE_OPTIONS = [
     value: "photon-classic",
     l10nId: "waterfox-appearance-browser-style-option-photon-classic",
     imageSrc: `${BROWSER_STYLE_PREVIEW}photon-classic.svg`,
+    controlAttrs: {
+      class: "setting-chooser-item",
+      // Fallback English label: the Fluent string above lives in the
+      // BrowserWorks/l10n submodule, which does not carry it yet. Fluent
+      // translateElements leaves the element untouched when the message is
+      // missing, so this shows until the l10n repo catches up (then the
+      // localized label wins). Safe to remove afterwards.
+      label: "Photon Classic",
+    },
   },
 ];
 
@@ -485,6 +494,9 @@ SettingGroupManager.registerGroups({
           controlAttrs: {
             class: "setting-chooser-item",
             imagesrc: option.imageSrc,
+            // Per-option extras, e.g. the photon-classic English label
+            // fallback (see BROWSER_STYLE_OPTIONS above).
+            ...option.controlAttrs,
           },
         })),
       },

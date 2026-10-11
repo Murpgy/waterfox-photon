@@ -1,0 +1,48 @@
+@namespace xul url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+/* Photon-classic menus: refined blocky look.
+ * Reference: Firefox 88 browser/themes/shared/customizableui/panelUI.inc.css
+ * (Photon path: subviewbutton margin 0, padding 4px 12px, border-radius
+ * unset/square, min-height 24px; separators tight). Modern Nova loosened
+ * rows to 8px padding with 4px pill-ish radius and margins; this restores
+ * the dense square Photon geometry for both arrow panels and native
+ * menupopups. Panel containers keep their 8px radius in both eras. */
+
+@media -moz-pref("browser.theme.waterfox.browserStyle", "photon-classic") {
+  @media -moz-pref("userChrome.photon-classic.menus.enabled", true) {
+    /* Arrow-panel rows: square, flush, Photon padding. */
+    panelmultiview .subviewbutton,
+    #appMenu-popup .subviewbutton {
+      border-radius: 0 !important;
+      margin: 0 !important;
+      padding-block: var(--space-xsmall) !important;
+    }
+
+    panelmultiview .subviewbutton > .toolbarbutton-icon,
+    #appMenu-popup .subviewbutton > .toolbarbutton-icon {
+      width: var(--size-item-small) !important;
+      height: var(--size-item-small) !important;
+    }
+
+    /* Native menus (context, menubar, bookmarks, library popups):
+     * square items like OS-drawn Photon-era menus. Custom-drawn popup
+     * containers tighten to 4px; mica-native popups stay OS-drawn. */
+    menupopup > menu,
+    menupopup > menuitem {
+      border-radius: 0 !important;
+    }
+
+    menupopup {
+      --menuitem-border-radius: 0 !important;
+    }
+
+    menupopup:not([native]) {
+      --panel-border-radius: var(--border-radius-small) !important;
+    }
+
+    /* Top-level menubar items: square hover like Photon. */
+    #main-menubar > menu {
+      border-radius: 0 !important;
+    }
+  } /* end menus.enabled */
+} /* end photon-classic */
